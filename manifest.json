@@ -3,7 +3,7 @@
     "description": "Casdoor Chrome Extension",
     "version": "1.0",
     "manifest_version": 3,
-    "permissions": ["storage"],
+    "permissions": ["storage", "identity"],
     "action": {
         "default_popup": "/src/popup.html",
         "default_icon": {
@@ -29,5 +29,8 @@
                 "/src/content-script.js"
             ]
         }
+    ],
+    "host_permissions": [
+        "http://localhost:8000/*"
     ]
 }

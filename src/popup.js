@@ -11,3 +11,28 @@ document.addEventListener("DOMContentLoaded", function () {
     chrome.storage.sync.set({ disableAutoLogin: !enableAutoLoginDom.checked });
   });
 });
+
+window.onload = () => {
+    const loginOrLogoutDom = document.getElementById("loginOrLogout");
+
+    chrome.storage.sync.get("accessToken", ({accessToken}) => {
+        loginOrLogoutDom.innerText = accessToken ? "Logout" : "Login";
+
+        if (accessToken) {
+            sdk.getUserProfile(accessToken)
+                .then(userProfile => displayUserProfile(userProfile));
+        } else {
+            clearUserProfile();
+        }
+    });
+
+    loginOrLogoutDom.addEventListener("click", function () {
+        chrome.storage.sync.get("accessToken", ({accessToken}) => {
+            if (accessToken) {
+                logout();
+            } else {
+                login();
+            }
+        });
+    });
+};
