@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-window.onload = () => {
+document.addEventListener("DOMContentLoaded", function () {
     const loginOrLogoutDom = document.getElementById("loginOrLogout");
 
     chrome.storage.sync.get("accessToken", ({accessToken}) => {
@@ -35,4 +35,4 @@ window.onload = () => {
             }
         });
     });
-};
+});
