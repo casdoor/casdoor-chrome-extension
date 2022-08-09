@@ -36,7 +36,7 @@ You need to change the `matches` filed followed by [match patterns rules](https:
 
 1. Go to `chrome://extensions` and get your extension id.
    
-   ![chromeExtensionId](docs/chromeExtensionId.png)
+   ![chromeExtensionId](images/chromeExtensionId.png)
 
 2. modify the variable `config` in `oauth.js`.
 
