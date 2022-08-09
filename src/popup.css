@@ -1,6 +1,6 @@
 .background {
     width: 200px;
-    height: 100px;
+    height: 120px;
 }
 
 .title {
@@ -11,6 +11,8 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .switch {
@@ -60,4 +62,40 @@ input:checked+.slider:before {
     -webkit-transform: translateX(26px);
     -ms-transform    : translateX(26px);
     transform        : translateX(26px);
+}
+
+.control {
+    color: rgba(0, 0, 0, .85);
+    font-size: 14px;
+    list-style: none;
+    max-width: 100%;
+    text-align: center;
+    display: flex;
+    position: relative;
+    align-items: center;
+}
+
+.control button {
+    border-radius: 2px;
+    border: 0;
+    padding: 6px 8px 6px 8px;
+    margin-bottom: 5px;
+}
+
+.control .primary {
+    color: #fff;
+    border-color: #2d78d5;
+    background: #2d78d5;
+    text-shadow: 0 -1px 0 rgb(0 0 0 / 12%);
+    box-shadow: 0 2px 0 rgb(0 0 0 / 5%);
+}
+
+.control .primary:hover {
+    color: #fff;
+    border-color: #5499e3;
+    background: #5499e3;
+}
+
+#user {
+    text-align: center;
 }
