@@ -1,13 +1,13 @@
+/* eslint-disable no-undef */
 "use strict";
 
 const userName = "admin";
 const password = "123";
 const updateTime = 300;
 
-function waitForElementToDisplay(xpath, time, func) {
+function waitForElementToDisplay (xpath, time, func) {
   if (document.evaluate(xpath, document).iterateNext() != null) {
     func();
-    return;
   } else {
     setTimeout(function () {
       waitForElementToDisplay(xpath, time, func);
@@ -15,7 +15,7 @@ function waitForElementToDisplay(xpath, time, func) {
   }
 }
 
-function autoLogin() {
+function autoLogin () {
   waitForElementToDisplay(
     "//input[@id='normal_login_username']",
     updateTime,
@@ -24,7 +24,7 @@ function autoLogin() {
       usernameElement.value = userName;
       const changeEvent = new Event("change", {
         bubbles: true,
-        cancelable: true,
+        cancelable: true
       });
       usernameElement.dispatchEvent(changeEvent);
 
@@ -38,7 +38,7 @@ function autoLogin() {
           passwordElement.value = password;
           const changeEvent = new Event("change", {
             bubbles: true,
-            cancelable: true,
+            cancelable: true
           });
           passwordElement.dispatchEvent(changeEvent);
 
@@ -59,9 +59,9 @@ function autoLogin() {
 }
 
 window.onload = () => {
-  chrome.storage.sync.get("disableAutoLogin", ({ disableAutoLogin }) => {
+  chrome.storage.sync.get("disableAutoLogin", ({disableAutoLogin}) => {
     if (!disableAutoLogin) {
-        autoLogin();
+      autoLogin();
     }
   });
 };
