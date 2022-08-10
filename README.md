@@ -34,20 +34,15 @@ You need to change the `matches` filed followed by [match patterns rules](https:
 
 ### Init the config
 
-1. Go to `chrome://extensions` and get your extension id.
-   
-   ![chromeExtensionId](images/chromeExtensionId.png)
+modify the variable `config` in `oauth.js`.
 
-2. modify the variable `config` in `oauth.js`.
-
-    ```js
-    const config = {
-        applicationName: "application_1f4v78",
-        endpoint: "http://localhost:8000",
-        clientId: "145c8aaed59b9338672d",
-        chromeExtensionId: "beikgcaffeplfamihkpcabdhllpilbdd"
-    };
-    ```
+ ```js
+ const config = {
+     applicationName: "application_1f4v78",
+     endpoint: "http://localhost:8000",
+     clientId: "145c8aaed59b9338672d"
+ };
+ ```
 
 ### Install the extension
 

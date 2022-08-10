@@ -18,7 +18,6 @@ const config = {
   applicationName: "your application name", // e.g. "application_123456"
   endpoint: "your backend url", // e.g. "http://localhost:8000"
   clientId: "your client id", // e.g. "145c8aaed59b9338672d"
-  chromeExtensionId: "your chrome extension id", // e.g. "abcdefgffeplfamihkpcabdhllpilbdd"
 };
 
 const sdk = new Sdk(config);
