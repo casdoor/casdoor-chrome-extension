@@ -64,7 +64,7 @@ class Sdk {
       },
       (redirectUrl) => {
         let accessToken = "";
-        if (redirectUrl) {
+        if (!chrome.runtime.lastError && redirectUrl) {
           accessToken = this.getAccessTokenFromRedirectUrl(redirectUrl);
         }
         try {

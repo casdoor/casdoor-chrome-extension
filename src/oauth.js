@@ -27,7 +27,6 @@ const sdk = new Sdk(config);
 function login() {
   sdk.login((accessToken) => {
     if (accessToken) {
-      alert("Login successful!");
       chrome.storage.sync.set({accessToken}, () => {
         sdk
           .getUserProfile(accessToken)
