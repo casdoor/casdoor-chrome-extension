@@ -20,13 +20,12 @@ class Sdk {
       endpoint: "",
       applicationName: "",
       clientId: "",
-      chromeExtensionId: "",
     };
   }
 
   getRedirectUri() {
     return encodeURIComponent(
-      `https://${this.config.chromeExtensionId}.chromiumapp.org`
+      chrome.identity.getRedirectURL("")
     );
   }
 
