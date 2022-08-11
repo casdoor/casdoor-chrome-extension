@@ -34,6 +34,8 @@ function login() {
 // eslint-disable-next-line no-unused-vars
 function logout() {
   chrome.storage.sync.set({accessToken: ""}, () => clearUserProfile());
+  chrome.storage.sync.set({userName: ""});
+  chrome.storage.sync.set({password: ""});
 }
 
 function displayUserProfile(userProfile) {
