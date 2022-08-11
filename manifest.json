@@ -26,7 +26,9 @@
                 "https://*.casdoor.org/login"
             ],
             "js": [
-                "/src/content-script.js"
+                "/src/content-script.js",
+                "/src/sdk.js",
+                "/src/oauth.js"
             ]
         }
     ],

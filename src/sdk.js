@@ -94,4 +94,24 @@ class Sdk {
       .then((response) => response.json())
       .catch((error) => console.error(error));
   }
+
+  getAccountUrl() {
+    const endpoint = this.config.endpoint;
+    return `${endpoint}/api/get-account`;
+  }
+
+  getAccount(accessToken) {
+    const accountUrl = this.getAccountUrl();
+    const requestConfig = {
+      method: "GET",
+      async: true,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    };
+    return fetch(accountUrl, requestConfig)
+      .then((response) => response.json())
+      .catch((error) => console.error(error));
+  }
 }
