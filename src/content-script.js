@@ -27,11 +27,12 @@ function waitForElementToDisplay(xpath, time, func) {
 }
 
 function autoLogin(userName, password) {
+  const usernameXpath = "//input[contains(@id,'username')] | //input[contains(@name,'username')] | //input[contains(@placeholder,'username')]";
   waitForElementToDisplay(
-    "//input[@id='normal_login_username']",
+    usernameXpath,
     updateTime,
     () => {
-      const usernameElement = document.getElementById("normal_login_username");
+      const usernameElement = document.evaluate(usernameXpath, document).iterateNext();
       usernameElement.value = userName;
       const changeEvent = new Event("change", {
         bubbles: true,
@@ -39,13 +40,12 @@ function autoLogin(userName, password) {
       });
       usernameElement.dispatchEvent(changeEvent);
 
+      const passwordXpath = "//input[@type='password'] | //input[contains(@id,'password')] | //input[contains(@name,'password')] | //input[contains(@placeholder,'password')]";
       waitForElementToDisplay(
-        "//input[@id='normal_login_password']",
+        passwordXpath,
         updateTime,
         () => {
-          const passwordElement = document.getElementById(
-            "normal_login_password"
-          );
+          const passwordElement = document.evaluate(passwordXpath, document).iterateNext();
           passwordElement.value = password;
           const changeEvent = new Event("change", {
             bubbles: true,
@@ -70,13 +70,20 @@ function autoLogin(userName, password) {
 }
 
 window.onload = () => {
-  chrome.storage.sync.get("userName", ({userName}) => {
-    if (userName) {
-      chrome.storage.sync.get("password", ({password}) => {
-        if (password) {
-          chrome.storage.sync.get("disableAutoLogin", ({disableAutoLogin}) => {
-            if (!disableAutoLogin) {
-              autoLogin(userName, password);
+  const url = window.location.href;
+  chrome.storage.sync.get("accessToken", ({accessToken}) => {
+    if (accessToken) {
+      const usernameKey = url + "username";
+      chrome.storage.sync.get(usernameKey, (userName) => {
+        if (userName[usernameKey]) {
+          const passwordKey = url + "password";
+          chrome.storage.sync.get(passwordKey, (password) => {
+            if (password[passwordKey]) {
+              chrome.storage.sync.get("disableAutoLogin", ({disableAutoLogin}) => {
+                if (!disableAutoLogin) {
+                  autoLogin(userName[usernameKey], password[passwordKey]);
+                }
+              });
             }
           });
         }

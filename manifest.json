@@ -22,8 +22,9 @@
     "content_scripts": [
         {
             "matches": [
-                "https://*.casdoor.com/login",
-                "https://*.casdoor.org/login"
+                "https://*.casdoor.com/login/*",
+                "https://*.casdoor.org/login/*",
+                "http://localhost:7001/login/*"
             ],
             "js": [
                 "/src/content-script.js",

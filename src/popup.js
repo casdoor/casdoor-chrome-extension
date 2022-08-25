@@ -37,10 +37,13 @@ document.addEventListener("DOMContentLoaded", function() {
         .getUserProfile(accessToken)
         .then((userProfile) => displayUserProfile(userProfile));
       sdk.getAccount(accessToken).then((account) => {
-        chrome.storage.sync.set({
-          userName: account.data.name,
-          password: account.data.password,
-        });
+        const managedAccounts = account.data.managedAccounts;
+        for (const managedAccount of managedAccounts) {
+          const usernameKey = managedAccount.signinUrl + "username";
+          chrome.storage.sync.set({[usernameKey]: managedAccount.username});
+          const passwordKey = managedAccount.signinUrl + "password";
+          chrome.storage.sync.set({[passwordKey]: managedAccount.password});
+        }
       });
     } else {
       clearUserProfile();
