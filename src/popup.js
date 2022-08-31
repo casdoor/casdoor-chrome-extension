@@ -38,12 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .then((userProfile) => displayUserProfile(userProfile));
       sdk.getAccount(accessToken).then((account) => {
         const managedAccounts = account.data.managedAccounts;
-        for (const managedAccount of managedAccounts) {
-          const usernameKey = managedAccount.signinUrl + "username";
-          chrome.storage.sync.set({[usernameKey]: managedAccount.username});
-          const passwordKey = managedAccount.signinUrl + "password";
-          chrome.storage.sync.set({[passwordKey]: managedAccount.password});
-        }
+        chrome.storage.sync.set({managedAccounts});
       });
     } else {
       clearUserProfile();

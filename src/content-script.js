@@ -27,7 +27,7 @@ function waitForElementToDisplay(xpath, time, func) {
 }
 
 function autoLogin(userName, password) {
-  const usernameXpath = "//input[contains(@id,'username')] | //input[contains(@name,'username')] | //input[contains(@placeholder,'username')]";
+  const usernameXpath = UsernameXpaths.join(" | ");
   waitForElementToDisplay(
     usernameXpath,
     updateTime,
@@ -40,7 +40,7 @@ function autoLogin(userName, password) {
       });
       usernameElement.dispatchEvent(changeEvent);
 
-      const passwordXpath = "//input[@type='password'] | //input[contains(@id,'password')] | //input[contains(@name,'password')] | //input[contains(@placeholder,'password')]";
+      const passwordXpath = PasswordXpaths.join(" | ");
       waitForElementToDisplay(
         passwordXpath,
         updateTime,
@@ -53,12 +53,13 @@ function autoLogin(userName, password) {
           });
           passwordElement.dispatchEvent(changeEvent);
 
+          const submitXpath = SubmitXpaths.join(" | ");
           waitForElementToDisplay(
-            "//button[@type='submit']",
+            submitXpath,
             updateTime,
             () => {
               document
-                .evaluate("//button[@type='submit']", document)
+                .evaluate(submitXpath, document)
                 .iterateNext()
                 .click();
             }
@@ -71,23 +72,16 @@ function autoLogin(userName, password) {
 
 window.onload = () => {
   const url = window.location.href;
-  chrome.storage.sync.get("accessToken", ({accessToken}) => {
-    if (accessToken) {
-      const usernameKey = url + "username";
-      chrome.storage.sync.get(usernameKey, (userName) => {
-        if (userName[usernameKey]) {
-          const passwordKey = url + "password";
-          chrome.storage.sync.get(passwordKey, (password) => {
-            if (password[passwordKey]) {
-              chrome.storage.sync.get("disableAutoLogin", ({disableAutoLogin}) => {
-                if (!disableAutoLogin) {
-                  autoLogin(userName[usernameKey], password[passwordKey]);
-                }
-              });
-            }
-          });
-        }
-      });
+  chrome.storage.sync.get("managedAccounts", ({managedAccounts}) => {
+    for (const managedAccount of managedAccounts) {
+      if (managedAccount.signinUrl === url) {
+        chrome.storage.sync.get("disableAutoLogin", ({disableAutoLogin}) => {
+          if (!disableAutoLogin) {
+            autoLogin(managedAccount.username, managedAccount.password);
+          }
+        });
+        break;
+      }
     }
   });
 };

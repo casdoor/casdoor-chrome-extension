@@ -97,7 +97,7 @@ class Sdk {
 
   getAccountUrl() {
     const endpoint = this.config.endpoint;
-    return `${endpoint}/api/get-account`;
+    return `${endpoint}/api/get-account?managedAccounts=1`;
   }
 
   getAccount(accessToken) {

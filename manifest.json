@@ -22,14 +22,14 @@
     "content_scripts": [
         {
             "matches": [
-                "https://*.casdoor.com/login/*",
-                "https://*.casdoor.org/login/*",
-                "http://localhost:7001/login/*"
+                "https://*/*",
+                "http://*/*"
             ],
             "js": [
                 "/src/content-script.js",
                 "/src/sdk.js",
-                "/src/oauth.js"
+                "/src/oauth.js",
+                "/src/config.js"
             ]
         }
     ],
