@@ -8,41 +8,27 @@ Casdoor chrome extension is very simple to use. We will show you the steps below
 
 ### Init the extension
 
-Firstly, you need to set the match rules about your casdoor application's login URL in the `mainfest.json`.
+Firstly, you need to set the `host_permissions` filed.
 
 ```json
-"content_scripts": [
-    {
-        "matches": [
-            "https://*.casdoor.com/login",
-            "https://*.casdoor.org/login"
-        ],
-        "js": [
-            "/src/content-script.js"
-        ]
-    }
-],
 "host_permissions": [
     "http://localhost:8000/*"
 ]
 ```
 
-`content_scripts` matches the URL you need to auto login to Casdoor, and `host_permissions` matches the URL of the Casdoor backend application that provides the oauth service.
-
-You need to change the `matches` filed followed by [match patterns rules](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns).
-
+ `host_permissions` matches the URL of the Casdoor backend application that provides the oauth service.
 
 ### Init the config
 
-modify the variable `config` in `oauth.js`.
+modify the variable `CasdoorConfig` in `src/config.js`.
 
- ```js
- const config = {
-     applicationName: "application_1f4v78",
-     endpoint: "http://localhost:8000",
-     clientId: "145c8aaed59b9338672d"
- };
- ```
+```js
+const CasdoorConfig = {
+  applicationName: "your application name", // e.g. "application_123456"
+  endpoint: "your backend url", // e.g. "http://localhost:8000"
+  clientId: "your client id", // e.g. "145c8aaed59b9338672d"
+};
+```
 
 ### Install the extension
 

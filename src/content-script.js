@@ -14,8 +14,6 @@
 
 /* eslint-disable no-undef */
 
-const userName = "admin";
-const password = "123";
 const updateTime = 300;
 
 function waitForElementToDisplay(xpath, time, func) {
@@ -28,12 +26,13 @@ function waitForElementToDisplay(xpath, time, func) {
   }
 }
 
-function autoLogin() {
+function autoLogin(userName, password) {
+  const usernameXpath = UsernameXpaths.join(" | ");
   waitForElementToDisplay(
-    "//input[@id='normal_login_username']",
+    usernameXpath,
     updateTime,
     () => {
-      const usernameElement = document.getElementById("normal_login_username");
+      const usernameElement = document.evaluate(usernameXpath, document).iterateNext();
       usernameElement.value = userName;
       const changeEvent = new Event("change", {
         bubbles: true,
@@ -41,13 +40,12 @@ function autoLogin() {
       });
       usernameElement.dispatchEvent(changeEvent);
 
+      const passwordXpath = PasswordXpaths.join(" | ");
       waitForElementToDisplay(
-        "//input[@id='normal_login_password']",
+        passwordXpath,
         updateTime,
         () => {
-          const passwordElement = document.getElementById(
-            "normal_login_password"
-          );
+          const passwordElement = document.evaluate(passwordXpath, document).iterateNext();
           passwordElement.value = password;
           const changeEvent = new Event("change", {
             bubbles: true,
@@ -55,12 +53,13 @@ function autoLogin() {
           });
           passwordElement.dispatchEvent(changeEvent);
 
+          const submitXpath = SubmitXpaths.join(" | ");
           waitForElementToDisplay(
-            "//button[@type='submit']",
+            submitXpath,
             updateTime,
             () => {
               document
-                .evaluate("//button[@type='submit']", document)
+                .evaluate(submitXpath, document)
                 .iterateNext()
                 .click();
             }
@@ -72,9 +71,17 @@ function autoLogin() {
 }
 
 window.onload = () => {
-  chrome.storage.sync.get("disableAutoLogin", ({disableAutoLogin}) => {
-    if (!disableAutoLogin) {
-      autoLogin();
+  const url = window.location.href;
+  chrome.storage.sync.get("managedAccounts", ({managedAccounts}) => {
+    for (const managedAccount of managedAccounts) {
+      if (managedAccount.signinUrl === url) {
+        chrome.storage.sync.get("disableAutoLogin", ({disableAutoLogin}) => {
+          if (!disableAutoLogin) {
+            autoLogin(managedAccount.username, managedAccount.password);
+          }
+        });
+        break;
+      }
     }
   });
 };
