@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const CasdoorConfig = {
-  applicationName: "your application name", // e.g. "application_123456"
-  endpoint: "your backend url", // e.g. "http://localhost:8000"
-  clientId: "your client id", // e.g. "145c8aaed59b9338672d"
-};
-
 const UsernameXpaths = [
   "//input[contains(@id,'username')]",
   "//input[contains(@name,'username')]",

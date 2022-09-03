@@ -1,6 +1,6 @@
 .background {
-    width: 200px;
-    height: 120px;
+    width: 300px;
+    height: 210px;
 }
 
 .title {
@@ -9,7 +9,7 @@
 
 .item {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -73,6 +73,7 @@ input:checked+.slider:before {
     display: flex;
     position: relative;
     align-items: center;
+    justify-content: center;
 }
 
 .control button {
@@ -98,4 +99,8 @@ input:checked+.slider:before {
 
 #user {
     text-align: center;
+}
+
+.input {
+    width: 180px;
 }

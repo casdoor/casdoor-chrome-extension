@@ -14,6 +14,27 @@
 
 /* eslint-disable no-undef */
 
+const CasdoorConfig = {
+  applicationName: "",
+  endpoint: "",
+  clientId: "",
+};
+chrome.storage.sync.get("applicationName", ({applicationName}) => {
+  if (applicationName) {
+    CasdoorConfig.applicationName = applicationName;
+  }
+});
+chrome.storage.sync.get("endpoint", ({endpoint}) => {
+  if (endpoint) {
+    CasdoorConfig.endpoint = endpoint;
+  }
+});
+chrome.storage.sync.get("clientId", ({clientId}) => {
+  if (clientId) {
+    CasdoorConfig.clientId = clientId;
+  }
+});
+
 const sdk = new Sdk(CasdoorConfig);
 
 // eslint-disable-next-line no-unused-vars
