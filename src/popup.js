@@ -55,3 +55,25 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
+
+document.addEventListener("DOMContentLoaded", function() {
+  const applicationNameDom = document.getElementById("applicationName");
+  chrome.storage.sync.get("applicationName", ({applicationName}) => {
+    if (applicationName) {
+      applicationNameDom.value = applicationName;
+    }
+  });
+  applicationNameDom.addEventListener("input", function(e) {
+    chrome.storage.sync.set({applicationName: e.target.value});
+  });
+
+  const endpointDom = document.getElementById("endpoint");
+  chrome.storage.sync.get("endpoint", ({endpoint}) => {
+    if (endpoint) {
+      endpointDom.value = endpoint;
+    }
+  });
+  endpointDom.addEventListener("input", function(e) {
+    chrome.storage.sync.set({endpoint: e.target.value});
+  });
+});

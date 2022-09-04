@@ -8,16 +8,22 @@
         <h1 class="title" id="title">Casdoor</h1>
         <div id="user"></div>
         <div class="item">
-            Enable auto login
+          endpoint: 
+          <input class="input" id="endpoint" name="endpoint" placeholder="your casdoor server url"/>
+        </div>
+        <div class="item">
+          applicationName: 
+          <input class="input" id="applicationName" name="applicationName" placeholder="your application name"/>
+        </div>
+        <div class="item">
+            Enable auto login: 
             <label class="switch">
                 <input type="checkbox" id="enableAutoLogin">
                 <span class="slider"></span>
             </label>
         </div>
-        <div class="item">
-            <div class="control">
-                <button class="primary" id="loginOrLogout">Login</button>
-            </div>
+        <div class="control">
+            <button class="primary" id="loginOrLogout">Login</button>
         </div>
     </div>
     <script src="config.js"></script>

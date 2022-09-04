@@ -19,7 +19,6 @@ class Sdk {
     this.config = config || {
       endpoint: "",
       applicationName: "",
-      clientId: "",
     };
   }
 
@@ -29,9 +28,8 @@ class Sdk {
     );
   }
 
-  getSignInUrl() {
+  getSignInUrl(clientId) {
     const endpoint = this.config.endpoint;
-    const clientId = this.config.clientId;
     const redirectUri = this.getRedirectUri();
     const scope = "profile";
     const state = this.config.applicationName;
@@ -55,24 +53,26 @@ class Sdk {
   }
 
   login(func) {
-    // refer: https://developer.chrome.com/docs/extensions/reference/identity/#method-launchWebAuthFlow
-    chrome.identity.launchWebAuthFlow(
-      {
-        url: this.getSignInUrl(),
-        interactive: true,
-      },
-      (redirectUrl) => {
-        let accessToken = "";
-        if (!chrome.runtime.lastError && redirectUrl) {
-          accessToken = this.getAccessTokenFromRedirectUrl(redirectUrl);
+    this.getApplication().then(application => {
+      // refer: https://developer.chrome.com/docs/extensions/reference/identity/#method-launchWebAuthFlow
+      chrome.identity.launchWebAuthFlow(
+        {
+          url: this.getSignInUrl(application.clientId),
+          interactive: true,
+        },
+        (redirectUrl) => {
+          let accessToken = "";
+          if (!chrome.runtime.lastError && redirectUrl) {
+            accessToken = this.getAccessTokenFromRedirectUrl(redirectUrl);
+          }
+          try {
+            func(accessToken);
+          } catch (error) {
+            console.error(error);
+          }
         }
-        try {
-          func(accessToken);
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    );
+      );
+    });
   }
 
   getUserProfileUrl() {
@@ -111,6 +111,25 @@ class Sdk {
       },
     };
     return fetch(accountUrl, requestConfig)
+      .then((response) => response.json())
+      .catch((error) => console.error(error));
+  }
+
+  getApplicationUrl(id) {
+    const endpoint = this.config.endpoint;
+    return `${endpoint}/api/get-application?id=${id}`;
+  }
+
+  getApplication() {
+    const applicationUrl = this.getApplicationUrl(`admin/${this.config.applicationName}`);
+    const requestConfig = {
+      method: "GET",
+      async: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    return fetch(applicationUrl, requestConfig)
       .then((response) => response.json())
       .catch((error) => console.error(error));
   }
