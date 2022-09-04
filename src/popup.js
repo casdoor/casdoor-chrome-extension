@@ -76,14 +76,4 @@ document.addEventListener("DOMContentLoaded", function() {
   endpointDom.addEventListener("input", function(e) {
     chrome.storage.sync.set({endpoint: e.target.value});
   });
-
-  const clientIdDom = document.getElementById("clientId");
-  chrome.storage.sync.get("clientId", ({clientId}) => {
-    if (clientId) {
-      clientIdDom.value = clientId;
-    }
-  });
-  clientIdDom.addEventListener("input", function(e) {
-    chrome.storage.sync.set({clientId: e.target.value});
-  });
 });
