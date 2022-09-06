@@ -71,6 +71,22 @@ function autoLogin(userName, password) {
 }
 
 window.onload = () => {
+  const applicationNameXpath = "//div[@id='CasdoorApplicationName']";
+  waitForElementToDisplay(
+    applicationNameXpath,
+    updateTime,
+    () => {
+      const applicationNameDom = document.evaluate(applicationNameXpath, document).iterateNext();
+      if (applicationNameDom) {
+        const applicationName = applicationNameDom.getAttribute("value");
+        if (applicationName) {
+          chrome.storage.sync.set({applicationName});
+          chrome.storage.sync.set({endpoint: window.location.origin});
+        }
+      }
+    }
+  );
+
   const url = window.location.href;
   chrome.storage.sync.get("managedAccounts", ({managedAccounts}) => {
     for (const managedAccount of managedAccounts) {
