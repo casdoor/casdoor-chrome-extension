@@ -70,7 +70,7 @@ function autoLogin(userName, password) {
   );
 }
 
-window.onload = () => {
+function autoFillCasdoorConfig() {
   const applicationNameXpath = "//div[@id='CasdoorApplicationName']";
   waitForElementToDisplay(
     applicationNameXpath,
@@ -86,6 +86,14 @@ window.onload = () => {
       }
     }
   );
+}
+
+window.onload = () => {
+  chrome.storage.sync.get("accessToken", ({accessToken}) => {
+    if (!accessToken) {
+      autoFillCasdoorConfig();
+    }
+  });
 
   const url = window.location.href;
   chrome.storage.sync.get("managedAccounts", ({managedAccounts}) => {
