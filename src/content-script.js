@@ -70,7 +70,31 @@ function autoLogin(userName, password) {
   );
 }
 
+function autoFillCasdoorConfig() {
+  const applicationNameXpath = "//div[@id='CasdoorApplicationName']";
+  waitForElementToDisplay(
+    applicationNameXpath,
+    updateTime,
+    () => {
+      const applicationNameDom = document.evaluate(applicationNameXpath, document).iterateNext();
+      if (applicationNameDom) {
+        const applicationName = applicationNameDom.getAttribute("value");
+        if (applicationName) {
+          chrome.storage.sync.set({applicationName});
+          chrome.storage.sync.set({endpoint: window.location.origin});
+        }
+      }
+    }
+  );
+}
+
 window.onload = () => {
+  chrome.storage.sync.get("accessToken", ({accessToken}) => {
+    if (!accessToken) {
+      autoFillCasdoorConfig();
+    }
+  });
+
   const url = window.location.href;
   chrome.storage.sync.get("managedAccounts", ({managedAccounts}) => {
     for (const managedAccount of managedAccounts) {
