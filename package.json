@@ -1,6 +1,6 @@
 {
   "name": "casdoor",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "Casdoor Chrome Extension",
   "scripts": {
     "semantic-release": "semantic-release"
