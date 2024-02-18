@@ -1,8 +1,8 @@
 # casdoor-chrome-extension
 
-Casdoor chrome extension can help the user to auto login with the casdoor application or login this extension through casdoor.
+The Casdoor extension can help browser users automatically log into applications protected by [Casdoor](https://casdoor.org). The extension's code is open-sourced at: https://github.com/casdoor/casdoor-chrome-extension
 
-Casdoor chrome extension is very simple to use. We will show you the steps below.
+This extension is very simple to use. We will show you the steps below.
 
 ## Usage
 
