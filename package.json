@@ -1,7 +1,7 @@
 {
   "name": "casdoor",
   "version": "1.0.0",
-  "description": "Casdoor Chrome Extension",
+  "description": "The Casdoor extension can help browser users automatically log into applications protected by Casdoor single-sign-on (SSO) system.",
   "scripts": {
     "semantic-release": "semantic-release"
   },
