@@ -46,11 +46,11 @@ class Sdk {
   }
 
   login(func) {
-    this.getApplication().then((application) => {
+    this.getApplication().then((res) => {
       // refer: https://developer.chrome.com/docs/extensions/reference/identity/#method-launchWebAuthFlow
       chrome.identity.launchWebAuthFlow(
         {
-          url: this.getSignInUrl(application.data.clientId),
+          url: this.getSignInUrl(res.data.clientId),
           interactive: true,
         },
         (redirectUrl) => {
@@ -90,7 +90,7 @@ class Sdk {
 
   getAccountUrl() {
     const endpoint = this.config.endpoint;
-    return `http://${endpoint}/api/get-account?managedAccounts=1`;
+    return `${endpoint}/api/get-account?managedAccounts=1`;
   }
 
   getAccount(accessToken) {
