@@ -31,33 +31,26 @@ class Sdk {
   getSignInUrl(clientId) {
     const endpoint = this.config.endpoint;
     const redirectUri = this.getRedirectUri();
-    const scope = "profile";
+    const scope = "openid";
     const state = this.config.applicationName;
     return `${endpoint}/login/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
   }
 
   getAccessTokenFromRedirectUrl(redirectUrl) {
     if (redirectUrl) {
-      const hashTagIndex = redirectUrl.indexOf("#");
-      const questionMaskIndex = redirectUrl.indexOf("?");
-      if (
-        hashTagIndex > 0 &&
-        questionMaskIndex > 0 &&
-        hashTagIndex < questionMaskIndex
-      ) {
-        // e.g. "https://${extensionId}.chromiumapp.org#token=${accessToken}?state=${state}&token_type=bearer"
-        return redirectUrl.substring(hashTagIndex + 7, questionMaskIndex);
-      }
+      const accessTokenMatch  = redirectUrl.match(/#access_token=([^&]*)/);
+      const accessToken = accessTokenMatch ? accessTokenMatch[1] : "";  
+      return accessToken;
     }
     return "";
   }
 
   login(func) {
-    this.getApplication().then(application => {
+    this.getApplication().then((application) => {
       // refer: https://developer.chrome.com/docs/extensions/reference/identity/#method-launchWebAuthFlow
       chrome.identity.launchWebAuthFlow(
         {
-          url: this.getSignInUrl(application.clientId),
+          url: this.getSignInUrl(application.data.clientId),
           interactive: true,
         },
         (redirectUrl) => {
@@ -97,7 +90,7 @@ class Sdk {
 
   getAccountUrl() {
     const endpoint = this.config.endpoint;
-    return `${endpoint}/api/get-account?managedAccounts=1`;
+    return `http://${endpoint}/api/get-account?managedAccounts=1`;
   }
 
   getAccount(accessToken) {
