@@ -31,7 +31,7 @@ class Sdk {
   getSignInUrl(clientId) {
     const endpoint = this.config.endpoint;
     const redirectUri = this.getRedirectUri();
-    const scope = "openid";
+    const scope = "profile";
     const state = this.config.applicationName;
     return `${endpoint}/login/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
   }

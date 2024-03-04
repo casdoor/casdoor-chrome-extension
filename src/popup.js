@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const managedAccounts = account.data.managedAccounts;
         chrome.storage.sync.set({managedAccounts});
       });
+      setInputDisabledState(true, "endpoint", "applicationName")
     } else {
       clearUserProfile();
     }

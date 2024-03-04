@@ -40,6 +40,7 @@ function login() {
           .getUserProfile(accessToken)
           .then((userProfile) => displayUserProfile(userProfile));
       });
+      setInputDisabledState(true, "endpoint", "applicationName")
     } else {
       alert("Login failed!");
     }
@@ -49,6 +50,7 @@ function login() {
 // eslint-disable-next-line no-unused-vars
 function logout() {
   chrome.storage.sync.set({accessToken: ""}, () => clearUserProfile());
+  setInputDisabledState(false, "endpoint", "applicationName")
 }
 
 function displayUserProfile(userProfile) {
@@ -62,4 +64,15 @@ function displayUserProfile(userProfile) {
 function clearUserProfile() {
   document.getElementById("user").innerHTML = "";
   document.getElementById("loginOrLogout").innerText = "Login";
+}
+
+function setInputDisabledState(disabledState, ...elementIds) {  
+  elementIds.forEach(elementId => {  
+    const inputElement = document.getElementById(elementId);  
+    if (inputElement) {  
+      inputElement.disabled = disabledState;  
+    } else {  
+      console.warn(`No element found with ID: ${elementId}`);  
+    }  
+  });  
 }
