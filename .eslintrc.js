@@ -17,8 +17,14 @@ module.exports = {
     "space-in-parens": ["error", "never"],
     "object-curly-spacing": ["error", "never"],
     "array-bracket-spacing": ["error", "never"],
-    "comma-spacing": ["error", {before: false, after: true}],
-    "arrow-spacing": ["error", {before: true, after: true}],
+    "comma-spacing": ["error", {
+      before: false,
+      after: true
+    }],
+    "arrow-spacing": ["error", {
+      before: true,
+      after: true
+    }],
     "space-before-blocks": ["error", "always"],
     "spaced-comment": ["error", "always"],
     "block-spacing": ["error", "never"],
@@ -43,11 +49,21 @@ module.exports = {
     ],
     "no-multiple-empty-lines": [
       "error",
-      {max: 1, maxBOF: 0, maxEOF: 0},
+      {
+        max: 1,
+        maxBOF: 0,
+        maxEOF: 0
+      },
     ],
-    "space-unary-ops": ["error", {words: true, nonwords: false}],
+    "space-unary-ops": ["error", {
+      words: true,
+      nonwords: false
+    }],
     "space-infix-ops": "error",
-    "key-spacing": ["error", {beforeColon: false, afterColon: true}],
+    "key-spacing": ["error", {
+      beforeColon: false,
+      afterColon: true
+    }],
     "comma-style": ["error", "last"],
     "comma-dangle": [
       "error",

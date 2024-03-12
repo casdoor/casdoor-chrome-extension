@@ -13,6 +13,7 @@
 // limitations under the License.
 
 /* eslint-disable no-undef */
+
 // eslint-disable-next-line no-unused-vars
 class Sdk {
   constructor(config) {
@@ -38,8 +39,8 @@ class Sdk {
 
   getAccessTokenFromRedirectUrl(redirectUrl) {
     if (redirectUrl) {
-      const accessTokenMatch  = redirectUrl.match(/#access_token=([^&]*)/);
-      const accessToken = accessTokenMatch ? accessTokenMatch[1] : "";  
+      const accessTokenMatch = redirectUrl.match(/#access_token=([^&]*)/);
+      const accessToken = accessTokenMatch ? accessTokenMatch[1] : "";
       return accessToken;
     }
     return "";

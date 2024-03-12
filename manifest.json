@@ -1,40 +1,43 @@
 {
-    "name": "Casdoor",
-    "description": "The Casdoor extension can help browser users automatically log into applications protected by Casdoor single-sign-on (SSO) system.",
-    "version": "1.0.0",
-    "manifest_version": 3,
-    "permissions": ["storage", "identity"],
-    "action": {
-        "default_popup": "/src/popup.html",
-        "default_icon": {
-            "16": "/images/icon16.png",
-            "32": "/images/icon32.png",
-            "48": "/images/icon48.png",
-            "128": "/images/icon128.png"
-        }
-    },
-    "icons": {
-        "16": "/images/icon16.png",
-        "32": "/images/icon32.png",
-        "48": "/images/icon48.png",
-        "128": "/images/icon128.png"
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "https://*/*",
-                "http://*/*"
-            ],
-            "js": [
-                "/src/content-script.js",
-                "/src/sdk.js",
-                "/src/oauth.js",
-                "/src/config.js"
-            ]
-        }
-    ],
-    "host_permissions": [
+  "name": "Casdoor",
+  "description": "The Casdoor extension can help browser users automatically log into applications protected by Casdoor single-sign-on (SSO) system.",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "permissions": [
+    "storage",
+    "identity"
+  ],
+  "action": {
+    "default_popup": "/src/popup.html",
+    "default_icon": {
+      "16": "/images/icon16.png",
+      "32": "/images/icon32.png",
+      "48": "/images/icon48.png",
+      "128": "/images/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "/images/icon16.png",
+    "32": "/images/icon32.png",
+    "48": "/images/icon48.png",
+    "128": "/images/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
         "https://*/*",
         "http://*/*"
-    ]
+      ],
+      "js": [
+        "/src/content-script.js",
+        "/src/sdk.js",
+        "/src/oauth.js",
+        "/src/config.js"
+      ]
+    }
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ]
 }
