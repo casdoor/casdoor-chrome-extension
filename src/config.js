@@ -15,8 +15,11 @@
 const UsernameXpaths = [
   "//input[contains(@id,'username')]",
   "//input[contains(@name,'username')]",
+  "//input[contains(@name,'account')]",
+  "//input[contains(@name,'login')]",
   "//input[contains(@placeholder,'username')]",
   "//input[contains(@placeholder,'用户名')]",
+  "//input[contains(@placeholder,'账号')]",
   "//input[contains(@id,'phone')]",
   "//input[contains(@name,'phone')]",
   "//input[contains(@placeholder,'phone')]",
@@ -37,6 +40,7 @@ const PasswordXpaths = [
 
 const SubmitXpaths = [
   "//button[@type='submit']",
+  "//input[contains(@name,'commit')]",
   "//button[contains(string(),'Login')]",
   "//button[contains(string(),'Sign in')]",
   "//button[contains(string(),'登录')]",

@@ -36,11 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
       sdk
         .getUserProfile(accessToken)
         .then((userProfile) => displayUserProfile(userProfile));
-      sdk.getAccount(accessToken).then((account) => {
-        const managedAccounts = account.data.managedAccounts;
-        chrome.storage.sync.set({managedAccounts});
-      });
-      setInputDisabledState(true, "endpoint", "applicationName");
+      setInputDisabledState(true, "endpoint", "applicationName")
     } else {
       clearUserProfile();
     }
