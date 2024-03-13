@@ -4,6 +4,10 @@ The Casdoor extension can help browser users automatically log into applications
 
 This extension is very simple to use. We will show you the steps below.
 
+## Demo video
+
+![AutoLogin](./img/demo.gif)
+
 ## Usage
 
 ### Install the extension
