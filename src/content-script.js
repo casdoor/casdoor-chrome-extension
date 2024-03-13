@@ -94,18 +94,27 @@ window.onload = () => {
       autoFillCasdoorConfig();
     }
   });
-
-  const url = window.location.href;
-  chrome.storage.sync.get("managedAccounts", ({managedAccounts}) => {
-    for (const managedAccount of managedAccounts) {
-      if (managedAccount.signinUrl === url) {
-        chrome.storage.sync.get("disableAutoLogin", ({disableAutoLogin}) => {
-          if (!disableAutoLogin) {
-            autoLogin(managedAccount.username, managedAccount.password);
-          }
-        });
-        break;
-      }
-    }
-  });
 };
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === "autoLogin") {
+      chrome.storage.sync.get("disableAutoLogin", ({ disableAutoLogin }) => {
+        if (!disableAutoLogin) {
+          const managedAccount = message.managedAccount;
+          autoLogin(managedAccount.username, managedAccount.password);
+        }
+      });
+  }
+});
+
+chrome.runtime.onMessage.addListener(function(message, sender,sendResponse) {
+  if (message.action === "setManagedAccounts") {
+    chrome.storage.sync.get("accessToken", ({accessToken}) => {
+      sdk.getAccount(accessToken).then((account) => {
+        const managedAccounts = account.data.managedAccounts;
+        sendResponse(managedAccounts);  
+      });
+    });
+    return true;
+  }
+});
