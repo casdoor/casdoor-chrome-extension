@@ -14,29 +14,81 @@
 
 let autoLoginTabs = new Set();
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {  
-  if (tab.url && tab.status === "complete" && !autoLoginTabs.has(tabId) ) {  
-    const url = tab.url;  
-  
-    chrome.tabs.sendMessage(tabId, {action: "setManagedAccounts"},  
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (tab.url && tab.status === "complete") {
+    const [UserLoggedIn, DisableAutoLogin] = await Promise.all([
+      isUserLoggedIn(tabId),
+      isDisableAutoLogin(tabId),
+    ]);
+    if (UserLoggedIn && !DisableAutoLogin && !autoLoginTabs.has(tabId)) {
+      autoLogin(tabId, tab.url);
+    }
+  }
+});
+
+async function isUserLoggedIn(tabId) {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.sendMessage(
+      tabId,
+      { action: "isUserLoggedIn" },
+      function (UserLoggedIn) {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message);
+        } else {
+          resolve(UserLoggedIn);
+        }
+      }
+    );
+  });
+}
+
+function getManagedAccounts(tabId) {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.sendMessage(
+      tabId,
+      { action: "getManagedAccounts" },
       function (managedAccounts) {
         if (chrome.runtime.lastError) {
-          console.error("Error sending first message:", chrome.runtime.lastError);  
-        } else if (managedAccounts) {  
-            for (const managedAccount of managedAccounts) {  
-              if (managedAccount && url.includes(managedAccount.signinUrl)) {  
-                autoLoginTabs.add(tabId);
-                chrome.tabs.sendMessage(tabId, {  
-                  action: "autoLogin",  
-                  managedAccount: managedAccount,  
-                });  
-              }  
-            }  
-        }  
-      }  
-    );  
-  }  
-});
+          reject(chrome.runtime.lastError.message);
+        } else {
+          resolve(managedAccounts);
+        }
+      }
+    );
+  });
+}
+
+async function autoLogin(tabId, url) {
+  const managedAccounts = await getManagedAccounts(tabId);
+  if (managedAccounts) {
+    for (const managedAccount of managedAccounts) {
+      if (managedAccount && url.includes(managedAccount.signinUrl)) {
+        autoLoginTabs.add(tabId);
+        chrome.tabs.sendMessage(tabId, {
+          action: "autoLogin",
+          managedAccount: managedAccount,
+        });
+        break;
+      }
+    }
+  }
+}
+
+function isDisableAutoLogin(tabId) {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.sendMessage(
+      tabId,
+      { action: "isDisableAutoLogin" },
+      function (DisableAutoLogin) {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve(DisableAutoLogin);
+        }
+      }
+    );
+  });
+}
 
 function clearAutoLoginTabs() {
   autoLoginTabs.clear();

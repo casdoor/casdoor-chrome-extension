@@ -98,17 +98,35 @@ window.onload = () => {
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "autoLogin") {
-      chrome.storage.sync.get("disableAutoLogin", ({ disableAutoLogin }) => {
-        if (!disableAutoLogin) {
-          const managedAccount = message.managedAccount;
-          autoLogin(managedAccount.username, managedAccount.password);
-        }
-      });
+    const managedAccount = message.managedAccount;
+    autoLogin(managedAccount.username, managedAccount.password);
+  }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "isUserLoggedIn") {
+    chrome.storage.sync.get("accessToken", ({accessToken}) => {
+      if(accessToken){
+        sendResponse(true);  
+      } else{
+        sendResponse(false);
+      }
+    });
+    return true;
+  }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "isDisableAutoLogin") {
+    chrome.storage.sync.get("disableAutoLogin", ({ disableAutoLogin }) => {
+      sendResponse(disableAutoLogin);  
+    });
+    return true;
   }
 });
 
 chrome.runtime.onMessage.addListener(function(message, sender,sendResponse) {
-  if (message.action === "setManagedAccounts") {
+  if (message.action === "getManagedAccounts") {
     chrome.storage.sync.get("accessToken", ({accessToken}) => {
       sdk.getAccount(accessToken).then((account) => {
         const managedAccounts = account.data.managedAccounts;
