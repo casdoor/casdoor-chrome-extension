@@ -1,6 +1,6 @@
 {
-  "name": "Casdoor",
-  "description": "The Casdoor extension can help browser users automatically log into applications protected by Casdoor single-sign-on (SSO) system.",
+  "name": "Casdoor Browser Plugin",
+  "description": "Casdoor Browser Plugin can help the users automatically log into applications protected by Casdoor identity provider.",
   "version": "1.0.0",
   "manifest_version": 3,
   "permissions": [
