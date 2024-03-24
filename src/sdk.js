@@ -125,6 +125,9 @@ class Sdk {
     };
     return fetch(applicationUrl, requestConfig)
       .then((response) => response.json())
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error)
+        alert("failed to get application");
+      });
   }
 }

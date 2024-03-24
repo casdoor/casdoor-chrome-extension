@@ -29,22 +29,57 @@ chrome.storage.sync.get("endpoint", ({endpoint}) => {
   }
 });
 
-const sdk = new Sdk(CasdoorConfig);
+let sdk;
+
+function getStorageData(keys) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get(keys, (data) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError.message);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+}
+
+function initInputParamSdk(){
+  return new Promise((resolve, reject) => {
+  Promise.all([getStorageData("applicationName"), getStorageData("endpoint")])
+    .then(([applicationData, endpointData]) => {
+      const applicationName = applicationData.applicationName;
+      const endpoint = endpointData.endpoint;
+
+      if (applicationName && endpoint) {
+        CasdoorConfig.applicationName = applicationName;
+        CasdoorConfig.endpoint = endpoint;
+      }
+      sdk = new Sdk(CasdoorConfig);
+      resolve(sdk);
+    })
+    .catch((error) => {
+      console.error("init SDK failed:", error);
+      reject(error);
+    });
+  });
+}
 
 // eslint-disable-next-line no-unused-vars
 function login() {
-  sdk.login((accessToken) => {
-    if (accessToken) {
-      chrome.storage.sync.set({accessToken}, () => {
-        sdk
-          .getUserProfile(accessToken)
-          .then((userProfile) => displayUserProfile(userProfile));
-      });
-      setInputDisabledState(true, "endpoint", "applicationName");
-    } else {
-      alert("Login failed!");
-    }
-  });
+  initInputParamSdk().then((sdk) => {
+    sdk.login((accessToken) => {
+      if (accessToken) {
+        chrome.storage.sync.set({accessToken}, () => {
+          sdk
+            .getUserProfile(accessToken)
+            .then((userProfile) => displayUserProfile(userProfile));
+        });
+        setInputDisabledState(true, "endpoint", "applicationName");
+      } else {
+        alert("Login failed!");
+      }
+    });
+  })
 }
 
 // eslint-disable-next-line no-unused-vars

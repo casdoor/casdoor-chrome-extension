@@ -47,7 +47,11 @@ document.addEventListener("DOMContentLoaded", function() {
       if (accessToken) {
         logout();
       } else {
-        login();
+        setInput()
+        .then(login())
+        .catch(error => {
+          console.error('Error login:', error);
+      });
       }
     });
   });
@@ -60,9 +64,6 @@ document.addEventListener("DOMContentLoaded", function() {
       applicationNameDom.value = applicationName;
     }
   });
-  applicationNameDom.addEventListener("input", function(e) {
-    chrome.storage.sync.set({applicationName: e.target.value});
-  });
 
   const endpointDom = document.getElementById("endpoint");
   chrome.storage.sync.get("endpoint", ({endpoint}) => {
@@ -70,7 +71,18 @@ document.addEventListener("DOMContentLoaded", function() {
       endpointDom.value = endpoint;
     }
   });
-  endpointDom.addEventListener("input", function(e) {
-    chrome.storage.sync.set({endpoint: e.target.value});
-  });
 });
+
+function setInput() {
+  return new Promise((resolve, reject) => {
+    const endpointDom = document.getElementById("endpoint");
+    const applicationNameDom = document.getElementById("applicationName");
+    chrome.storage.sync.set({ endpoint: endpointDom.value, applicationName: applicationNameDom.value }, function() {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError.message);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
