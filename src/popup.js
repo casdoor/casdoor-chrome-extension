@@ -29,18 +29,21 @@ document.addEventListener("DOMContentLoaded", function() {
 document.addEventListener("DOMContentLoaded", function() {
   const loginOrLogoutDom = document.getElementById("loginOrLogout");
 
-  chrome.storage.sync.get("accessToken", ({accessToken}) => {
-    loginOrLogoutDom.innerText = accessToken ? "Logout" : "Login";
+  loginOrLogoutDom.innerText = accessToken ? "Logout" : "Login";
 
-    if (accessToken) {
-      sdk
-        .getUserProfile(accessToken)
-        .then((userProfile) => displayUserProfile(userProfile));
-      setInputDisabledState(true, "endpoint", "applicationName")
-    } else {
-      clearUserProfile();
-    }
-  });
+  Promise.all([getStorageData("accessToken"), getStorageData("userProfile")])
+    .then(([accessToken, userProfile]) => {
+      if (accessToken.accessToken && userProfile.userProfile) {
+        displayUserProfile(userProfile.userProfile)
+        setInputDisabledState(true, "endpoint", "applicationName");
+      } else {
+        clearUserProfile();
+      }
+    })
+    .catch((error) => {
+      console.error("init SDK failed:", error);
+      reject(error);
+    });
 
   loginOrLogoutDom.addEventListener("click", function() {
     chrome.storage.sync.get("accessToken", ({accessToken}) => {
