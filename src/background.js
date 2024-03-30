@@ -58,17 +58,32 @@ function getManagedAccounts(tabId) {
   });
 }
 
+function testUrlWithRegex(url, regexPattern) {
+  try {
+    const regex = new RegExp(regexPattern);
+    const isMatched = regex.test(url);
+    console.log(`testUrlWithRegex(), url = ${url}, regexPattern = ${regexPattern}, isMatched = ${isMatched}`);
+    return isMatched;
+  } catch (error) {
+    alert(`testUrlWithRegex() error, the regex pattern: "${regexPattern}" is invalid`);
+    return false;
+  }
+}
+
 async function autoLogin(tabId, url) {
   const managedAccounts = await getManagedAccounts(tabId);
   if (managedAccounts) {
     for (const managedAccount of managedAccounts) {
-      if (managedAccount && url.includes(managedAccount.signinUrl)) {
-        autoLoginTabs.add(tabId);
-        chrome.tabs.sendMessage(tabId, {
-          action: "autoLogin",
-          managedAccount: managedAccount,
-        });
-        break;
+      if (managedAccount && managedAccount.signinUrl && url) {
+        const isMatched = testUrlWithRegex(url, managedAccount.signinUrl);
+        if (isMatched) {
+          autoLoginTabs.add(tabId);
+          chrome.tabs.sendMessage(tabId, {
+            action: "autoLogin",
+            managedAccount: managedAccount,
+          });
+          break;
+        }
       }
     }
   }
