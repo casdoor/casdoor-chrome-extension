@@ -89,13 +89,18 @@ class Sdk {
       .catch((error) => console.error(error));
   }
 
-  getAccountUrl() {
-    const endpoint = this.config.endpoint;
-    return `${endpoint}/api/get-account`;
+  async getAccountUrl() {  
+    try {  
+      const endpointData = await getStorageData("endpoint");  
+      const endpoint = endpointData.endpoint;  
+      return `${endpoint}/api/get-account`;  
+    } catch (error) {  
+      console.error('Error fetching endpoint:', error);  
+    }  
   }
 
-  getAccount(accessToken) {
-    const accountUrl = this.getAccountUrl();
+  async getAccount(accessToken) {
+    const accountUrl = await this.getAccountUrl();
     const requestConfig = {
       method: "GET",
       async: true,
