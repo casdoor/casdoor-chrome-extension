@@ -119,9 +119,11 @@ let accessToken;
 let applicationName;
 
 function getDomAccessToken() {
-  if(window.location.pathname != "/src/popup.html"){
-    accessToken = document.getElementById("CasdoorAccessToken").getAttribute("value");
-    applicationName = document.getElementById("CasdoorApplicationName").getAttribute("value");
+  const accessTokenDom = document.getElementById("CasdoorAccessToken")
+  const applicationNameDom = document.getElementById("CasdoorApplicationName")
+  if(window.location.pathname != "/src/popup.html" && accessTokenDom && applicationNameDom){
+    accessToken = accessTokenDom.getAttribute("value");
+    applicationName = applicationNameDom.getAttribute("value");
     if (accessToken && applicationName) {
       sdk.getUserProfile(accessToken).then((userProfile) => {
         userProfile.applicationName = applicationName;
