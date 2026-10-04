@@ -2,19 +2,19 @@
   "name": "casdoor",
   "version": "1.0.0",
   "description": "The Casdoor extension can help browser users automatically log into applications protected by Casdoor single-sign-on (SSO) system.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/casdoor/casdoor-chrome-extension.git"
+  },
   "scripts": {
     "semantic-release": "semantic-release"
   },
   "devDependencies": {
-    "@semantic-release/commit-analyzer": "^9.0.2",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^8.0.6",
-    "@semantic-release/release-notes-generator": "^10.0.3",
     "eslint": "^8.21.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.2.4",
     "eslint-plugin-promise": "^6.0.0",
-    "semantic-release": "^19.0.5"
+    "semantic-release": "^25.0.9"
   }
 }
