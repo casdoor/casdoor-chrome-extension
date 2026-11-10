@@ -26,3 +26,33 @@ jobs:
         run: yarn semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Package
+        id: package
+        if: github.event_name == 'push' && github.repository == 'casdoor/casdoor-chrome-extension'
+        run: |
+          tag=$(git tag --points-at HEAD | grep '^v' | head -n 1)
+          if [ -z "$tag" ]; then
+            echo "No new release, nothing to package"
+            exit 0
+          fi
+          # the version only lives in the tag, it is written into the manifest here and not committed
+          node -e 'const fs = require("fs"); const m = JSON.parse(fs.readFileSync("manifest.json")); m.version = process.argv[1]; fs.writeFileSync("manifest.json", JSON.stringify(m, null, 2) + "\n")' "${tag#v}"
+          zip -r casdoor-extension.zip manifest.json src images
+          gh release upload "$tag" casdoor-extension.zip --clobber
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish to the Chrome Web Store
+        if: steps.package.outputs.tag != ''
+        run: |
+          if [ -z "$CLIENT_ID" ] || [ -z "$CLIENT_SECRET" ] || [ -z "$REFRESH_TOKEN" ] || [ -z "$PUBLISHER_ID" ]; then
+            echo "::warning::The Chrome Web Store secrets are not set, ${{ steps.package.outputs.tag }} is only attached to the GitHub release"
+            exit 0
+          fi
+          npx --yes chrome-webstore-upload-cli@4.0.2 --source casdoor-extension.zip
+        env:
+          EXTENSION_ID: bnjbegmkpjbcpneclidlbloadenondlm
+          PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
