@@ -1,16 +1,20 @@
 {
   "name": "Casdoor",
   "description": "Signs you into the systems without single sign-on by filling their sign-in forms with your accounts kept in Casdoor.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "manifest_version": 3,
   "permissions": [
     "storage",
-    "identity"
+    "identity",
+    "offscreen"
   ],
   "host_permissions": [
     "https://*/*",
     "http://*/*"
   ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
   "action": {
     "default_popup": "/src/popup.html",
     "default_icon": {

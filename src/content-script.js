@@ -37,6 +37,15 @@
       usernameField: "用户名输入框",
       passwordField: "密码输入框",
       submitField: "登录按钮",
+      captchaField: "验证码输入框",
+      captchaImageField: "验证码图片",
+      captchaNoInput: "没有找到验证码输入框",
+      captchaNoImage: "没有找到验证码图片",
+      captchaCrossOrigin: "验证码图片来自其他网站，插件读不到",
+      captchaUnread: "没有认出验证码",
+      captchaManual: "验证码请手动输入（{error}）",
+      captchaGaveUp: "验证码自动识别了 {n} 次都没有通过，请手动输入后登录",
+      signInRefused: "登录没有成功，可能是账号或密码不对，请检查托管账户",
     }
     : {
       filled: "Casdoor filled in the account {user} of {app}",
@@ -52,6 +61,15 @@
       usernameField: "username input",
       passwordField: "password input",
       submitField: "sign-in button",
+      captchaField: "captcha input",
+      captchaImageField: "captcha image",
+      captchaNoInput: "no captcha input was found",
+      captchaNoImage: "no captcha image was found",
+      captchaCrossOrigin: "the captcha image comes from another site, the extension can't read it",
+      captchaUnread: "the captcha could not be read",
+      captchaManual: "Please type the captcha ({error})",
+      captchaGaveUp: "The captcha was read {n} times without success, please type it and sign in",
+      signInRefused: "The sign-in failed, the username or the password may be wrong. Please check the managed account",
     };
 
   function format(text, values) {
@@ -250,6 +268,199 @@
     }
   }
 
+  // captchas
+
+  const captchaInputHints = /验证码|校验码|captcha|verif|vcode|checkcode|check_code|yzm|randcode|validcode|valicode|imgcode|authcode|securitycode|kaptcha/i;
+  const captchaImageHints = /验证码|captcha|verif|vcode|checkcode|kaptcha|yzm|randcode|validcode|valicode|imgcode|authcode|code/i;
+  const captchaErrorHints = /(验证码|校验码|captcha|verification code|security code).{0,12}(错|不正确|不对|有误|无效|失效|过期|incorrect|invalid|wrong|expired)|(错误|不正确|无效|incorrect|invalid|wrong).{0,6}(验证码|captcha)/i;
+  const passwordErrorHints = /(密码|口令|账号|用户名|用户|password|username|account).{0,12}(错|不正确|不对|有误|不存在|锁定|incorrect|invalid|wrong|locked)/i;
+  const MAX_CAPTCHA_TRIES = 3;
+
+  function isShown(element) {
+    if (!element || !element.isConnected) {
+      return false;
+    }
+    const style = window.getComputedStyle(element);
+    return style.visibility !== "hidden" && style.display !== "none" && element.getClientRects().length > 0;
+  }
+
+  function findCaptchaInput(site, usernameInput, password) {
+    const configured = query(site.captchaSelector);
+    if (configured) {
+      return configured;
+    }
+    const inputs = [...document.querySelectorAll("input")].filter((input) => isTextInput(input) && isVisible(input) && input !== usernameInput && input !== password);
+    return inputs.find((input) => captchaInputHints.test(`${input.name} ${input.id} ${input.placeholder} ${input.className} ${input.getAttribute("aria-label") || ""} ${input.getAttribute("autocomplete") || ""}`) ||
+      /(^|[^a-z])code([^a-z]|$)/i.test(`${input.name} ${input.id}`)) || null;
+  }
+
+  function center(element) {
+    const rect = element.getBoundingClientRect();
+    return [rect.left + rect.width / 2, rect.top + rect.height / 2];
+  }
+
+  // the captcha picture: the one the admin set, or an image or canvas of a captcha's size, the hinted and closest first
+  function findCaptchaImage(site, input) {
+    const configured = query(site.captchaImageSelector);
+    if (configured) {
+      return configured;
+    }
+    const [x, y] = center(input);
+    const candidates = [...document.querySelectorAll("img, canvas")].filter((element) => {
+      if (!isShown(element)) {
+        return false;
+      }
+      const rect = element.getBoundingClientRect();
+      return rect.width >= 40 && rect.width <= 320 && rect.height >= 15 && rect.height <= 120;
+    }).map((element) => {
+      const [cx, cy] = center(element);
+      const hinted = captchaImageHints.test(`${element.getAttribute("src") || ""} ${element.id} ${element.className} ${element.getAttribute("alt") || ""} ${element.getAttribute("title") || ""}`);
+      return {element, score: Math.hypot(cx - x, cy - y) - (hinted ? 10000 : 0)};
+    });
+    candidates.sort((a, b) => a.score - b.score);
+    return candidates.length > 0 ? candidates[0].element : null;
+  }
+
+  function waitForImage(image, timeout) {
+    if (!(image instanceof HTMLImageElement) || (image.complete && image.naturalWidth > 0)) {
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+      const done = () => resolve();
+      image.addEventListener("load", done, {once: true});
+      image.addEventListener("error", done, {once: true});
+      setTimeout(done, timeout);
+    });
+  }
+
+  // the picture as it is on the page; loading its address again would give a new captcha
+  async function readCaptchaImage(image) {
+    if (image instanceof HTMLCanvasElement) {
+      return image.toDataURL("image/png");
+    }
+    if (!(image instanceof HTMLImageElement)) {
+      throw new Error(strings.captchaNoImage);
+    }
+    await waitForImage(image, 3000);
+    if (!image.naturalWidth) {
+      throw new Error(strings.captchaNoImage);
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    canvas.getContext("2d").drawImage(image, 0, 0);
+    try {
+      return canvas.toDataURL("image/png");
+    } catch (error) {
+      // an image of another site without CORS taints the canvas
+      throw new Error(strings.captchaCrossOrigin);
+    }
+  }
+
+  function captchaCharset(site, input) {
+    if (site.captchaCharset) {
+      return site.captchaCharset;
+    }
+    const label = input.closest("label, .el-form-item, .ant-form-item, .form-group, tr, li");
+    const text = `${input.placeholder} ${input.getAttribute("aria-label") || ""} ${input.title} ${label ? label.textContent : ""}`;
+    return /数字|digit|number/i.test(text) ? "Digits" : "Alphanumeric";
+  }
+
+  async function solveCaptcha(site, input) {
+    const image = findCaptchaImage(site, input);
+    if (!image) {
+      throw new Error(strings.captchaNoImage);
+    }
+    const data = await readCaptchaImage(image);
+    const res = await send({type: "recognizeCaptcha", application: site.application, image: data, charset: captchaCharset(site, input)});
+    if (!res || res.error || !res.text) {
+      throw new Error((res && res.error) || strings.captchaUnread);
+    }
+    let text = res.text;
+    if (input.maxLength > 0 && text.length > input.maxLength) {
+      text = text.slice(0, input.maxLength);
+    }
+    setValue(input, text);
+    return {data};
+  }
+
+  // a new captcha: most sign-in pages change it when the picture is clicked, some already did on the failed sign-in
+  async function refreshCaptcha(site, input, before) {
+    const image = findCaptchaImage(site, input);
+    if (!image) {
+      return;
+    }
+    const current = await readCaptchaImage(image).catch(() => "");
+    if (current && current !== before.data) {
+      return;
+    }
+    image.click();
+    for (let i = 0; i < 15; i++) {
+      await sleep(200);
+      const latest = findCaptchaImage(site, input);
+      if (latest) {
+        await waitForImage(latest, 1000);
+        const data = await readCaptchaImage(latest).catch(() => "");
+        if (data && data !== before.data) {
+          return;
+        }
+      }
+    }
+  }
+
+  function submitForm(site, password) {
+    const submit = findSubmit(site, password);
+    if (submit) {
+      submit.click();
+    } else {
+      pressEnter(password);
+    }
+  }
+
+  // After submitting with a recognized captcha: still on the sign-in form means it was refused. A wrong captcha is
+  // tried again with a new one, a wrong password is not, so that the account doesn't get locked.
+  async function watchCaptchaSignIn(site, account, password, input, attempt, solved, textBefore) {
+    const url = location.href;
+    await sleep(2500);
+    const stillHere = location.href === url && (isShown(password) || isShown(findPassword(site)));
+    if (!stillHere) {
+      return;
+    }
+    const now = document.body.innerText;
+    const added = now.split(textBefore).join(" ");
+    const captchaWrong = captchaErrorHints.test(added) || captchaErrorHints.test(now);
+    const passwordWrong = !captchaWrong && passwordErrorHints.test(added);
+    if (passwordWrong || attempt >= MAX_CAPTCHA_TRIES || (!captchaWrong && attempt >= 2)) {
+      const currentInput = isShown(input) ? input : findCaptchaInput(site, null, findPassword(site));
+      if (currentInput) {
+        setValue(currentInput, "");
+        currentInput.focus();
+      }
+      showNotice(passwordWrong ? strings.signInRefused : format(strings.captchaGaveUp, {n: attempt}), [], 0);
+      return;
+    }
+
+    const currentPassword = isShown(password) ? password : findPassword(site);
+    const currentInput = isShown(input) ? input : findCaptchaInput(site, findUsername(site, currentPassword), currentPassword);
+    if (!currentPassword || !currentInput) {
+      return;
+    }
+    if (!currentPassword.value) {
+      setValue(currentPassword, account.password);
+    }
+    try {
+      await refreshCaptcha(site, currentInput, solved);
+      const next = await solveCaptcha(site, currentInput);
+      const text = document.body.innerText;
+      await sleep(300);
+      submitForm(site, currentPassword);
+      await watchCaptchaSignIn(site, account, currentPassword, currentInput, attempt + 1, next, text);
+    } catch (error) {
+      currentInput.focus();
+      showNotice(format(strings.captchaManual, {error: error.message}), [], 0);
+    }
+  }
+
   async function fill(info, username) {
     const site = info.site;
     // a page of the system without a sign-in form, e.g. when the URLs end with "*"
@@ -268,6 +479,23 @@
     }
     setValue(password, account.password);
 
+    // the captcha is read on the user's computer, see offscreen.js
+    let captchaInput = null;
+    let solved = null;
+    let captchaError = "";
+    if (site.captcha) {
+      captchaInput = findCaptchaInput(site, usernameInput, password);
+      if (!captchaInput) {
+        captchaError = strings.captchaNoInput;
+      } else {
+        try {
+          solved = await solveCaptcha(site, captchaInput);
+        } catch (error) {
+          captchaError = error.message;
+        }
+      }
+    }
+
     const others = info.accounts.filter((item) => item !== account.username);
     const buttons = others.slice(0, 3).map((item) => ({label: `${strings.switchAccount} ${item}`, onClick: () => fill(info, item)}));
     if (info.recentlySubmitted && info.accounts.length > 0) {
@@ -279,17 +507,28 @@
       [site.usernameSelector, strings.usernameField],
       [site.passwordSelector, strings.passwordField],
       [site.autoSubmit ? site.submitSelector : "", strings.submitField],
+      [site.captcha ? site.captchaSelector : "", strings.captchaField],
+      [site.captcha ? site.captchaImageSelector : "", strings.captchaImageField],
     ].filter(([selector]) => selector && selector.trim() && !query(selector));
     const warnings = missing.map(([selector, field]) => format(strings.missingSelector, {field, selector}));
+    if (captchaError) {
+      warnings.push(format(strings.captchaManual, {error: captchaError}));
+    }
     showNotice([format(strings.filled, {app: site.displayName, user: account.username}), ...warnings].join("\n"), buttons, warnings.length > 0 ? 15000 : 8000);
 
+    if (captchaError) {
+      // nothing is submitted without the captcha, the user types it
+      if (captchaInput) {
+        captchaInput.focus();
+      }
+      return;
+    }
     if (site.autoSubmit && !username) {
       await sleep(400);
-      const submit = findSubmit(site, password);
-      if (submit) {
-        submit.click();
-      } else {
-        pressEnter(password);
+      const textBefore = document.body.innerText;
+      submitForm(site, password);
+      if (solved) {
+        watchCaptchaSignIn(site, account, password, captchaInput, 1, solved, textBefore);
       }
     }
   }

@@ -14,6 +14,12 @@ The Casdoor browser extension signs users into the systems that have no single s
 
 Casdoor only hands an account out for a page of the system's own sign-in URLs, records every time it does, and can keep the passwords encrypted (the organization's "Encrypted fields", with `fieldEncryptionKey` set). Form autofill needs a Casdoor Enterprise edition license. On a Casdoor without it, the extension fills the managed accounts on the pages that match the application's "Signin URL", a regular expression, as its first versions did.
 
+### Image captchas
+
+When **Recognize image captchas** is on in the application, the extension also reads the picture of characters on the sign-in page and types it in. It reads it with the [ddddocr](https://github.com/sml2h3/ddddocr) model in [ONNX Runtime Web](https://github.com/microsoft/onnxruntime), in a hidden page of the extension on the user's own computer: the picture is never sent anywhere, and it works on an intranet without internet access. The captcha input and picture are found automatically, or set with CSS selectors; the characters are digits when the page says so (e.g. "请输入数字验证码"), else letters and digits, or as the admin sets.
+
+When the sign-in page says the captcha was wrong, the extension tries a new one (it clicks the picture when the page doesn't change it), up to 3 times in all. When it says the username or password is wrong, it stops at once, so that the account doesn't get locked. A picture from another site can't be read by the extension, and then the user types the captcha. Sliders, picking pictures, SMS codes and third-party human checks (reCAPTCHA, GeeTest and the like) are not supported. Use it only on your own organization's systems.
+
 ## Usage
 
 ### Install the extension

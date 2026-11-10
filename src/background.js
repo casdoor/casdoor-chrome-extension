@@ -156,6 +156,10 @@ async function getFill(sender) {
       usernameSelector: site.usernameSelector || "",
       passwordSelector: site.passwordSelector || "",
       submitSelector: site.submitSelector || "",
+      captcha: !!site.captcha,
+      captchaSelector: site.captchaSelector || "",
+      captchaImageSelector: site.captchaImageSelector || "",
+      captchaCharset: site.captchaCharset || "",
       autoSubmit: !!site.autoSubmit && !recentlySubmitted,
       urls: site.urls || [],
     },
@@ -181,6 +185,10 @@ async function getAccount(message, sender) {
   }
 
   const query = new URLSearchParams({application: site.application, username: message.username || "", url: sender.url});
+  // so that the audit record says the captcha of this sign-in was read by the extension
+  if (site.captcha) {
+    query.set("captcha", "true");
+  }
   const res = await callApi(`/api/get-form-fill-account?${query.toString()}`);
   if (res.status !== "ok") {
     return {error: res.msg};
@@ -189,6 +197,41 @@ async function getAccount(message, sender) {
     lastAutoSubmits.set(`${sender.tab.id}/${site.application}`, Date.now());
   }
   return {username: res.data.username, password: res.data.password};
+}
+
+const OFFSCREEN_URL = "/src/offscreen.html";
+let offscreenCreating = null;
+
+async function ensureOffscreen() {
+  const contexts = await chrome.runtime.getContexts({contextTypes: ["OFFSCREEN_DOCUMENT"], documentUrls: [chrome.runtime.getURL(OFFSCREEN_URL)]});
+  if (contexts.length > 0) {
+    return;
+  }
+  if (!offscreenCreating) {
+    offscreenCreating = chrome.offscreen.createDocument({
+      url: OFFSCREEN_URL,
+      reasons: ["WORKERS"],
+      justification: "Reads the image captcha of a sign-in page with a local model",
+    }).finally(() => {
+      offscreenCreating = null;
+    });
+  }
+  await offscreenCreating;
+}
+
+// recognizeCaptcha reads the captcha image of a sign-in page that the admin turned captcha recognition on for
+async function recognizeCaptcha(message, sender) {
+  const cache = await getSites();
+  const site = cache && findSite(cache, sender.url);
+  if (!site || !site.captcha || site.application !== message.application) {
+    return {error: "captcha recognition is off for this page"};
+  }
+  if (typeof message.image !== "string" || !message.image.startsWith("data:image/") || message.image.length > 2 * 1024 * 1024) {
+    return {error: "not a captcha image"};
+  }
+  await ensureOffscreen();
+  const res = await chrome.runtime.sendMessage({target: "offscreen", type: "recognizeCaptcha", image: message.image, charset: message.charset || ""});
+  return res || {error: "captcha recognition failed"};
 }
 
 function pendingKey(tabId) {
@@ -333,6 +376,7 @@ async function getStatus() {
 const handlers = {
   getFill: (message, sender) => getFill(sender),
   getAccount: (message, sender) => getAccount(message, sender),
+  recognizeCaptcha: (message, sender) => recognizeCaptcha(message, sender),
   capture: (message, sender) => capture(message, sender),
   getPending: (message, sender) => getPending(sender),
   resolvePending: (message, sender) => resolvePending(message, sender),
