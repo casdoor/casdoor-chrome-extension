@@ -1,7 +1,7 @@
 {
   "name": "Casdoor",
   "description": "Signs you into the systems without single sign-on by filling their sign-in forms with your accounts kept in Casdoor.",
-  "version": "2.1.0",
+  "version": "2.0.0",
   "manifest_version": 3,
   "permissions": [
     "storage",

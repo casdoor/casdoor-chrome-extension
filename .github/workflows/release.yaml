@@ -37,7 +37,9 @@ jobs:
           fi
           # the version only lives in the tag, it is written into the manifest here and not committed
           node -e 'const fs = require("fs"); const m = JSON.parse(fs.readFileSync("manifest.json")); m.version = process.argv[1]; fs.writeFileSync("manifest.json", JSON.stringify(m, null, 2) + "\n")' "${tag#v}"
-          zip -r casdoor-extension.zip manifest.json src images
+          zip -r casdoor-extension.zip manifest.json src images vendor
+          # the captcha model and ONNX Runtime are in vendor/, a package without them can't read captchas
+          unzip -l casdoor-extension.zip | grep -q "vendor/ddddocr/common_old.onnx"
           gh release upload "$tag" casdoor-extension.zip --clobber
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
         env:
@@ -49,7 +51,16 @@ jobs:
             echo "::warning::The Chrome Web Store secrets are not set, ${{ steps.package.outputs.tag }} is only attached to the GitHub release"
             exit 0
           fi
-          npx --yes chrome-webstore-upload-cli@4.0.2 --source casdoor-extension.zip
+          if ! output=$(npx --yes chrome-webstore-upload-cli@4.0.2 --source casdoor-extension.zip 2>&1); then
+            echo "$output"
+            # the store takes no new version while one is in review: run this job again once the review is done
+            if echo "$output" | grep -q "in review"; then
+              echo "::warning::A version is in review in the Chrome Web Store, ${{ steps.package.outputs.tag }} was not uploaded. Re-run this job after the review, or cancel the review in the developer console first"
+              exit 0
+            fi
+            exit 1
+          fi
+          echo "$output"
         env:
           EXTENSION_ID: bnjbegmkpjbcpneclidlbloadenondlm
           PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
