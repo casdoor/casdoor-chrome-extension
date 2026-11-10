@@ -33,6 +33,10 @@
       skip: "不用了",
       saved: "已保存到 Casdoor",
       close: "关闭",
+      missingSelector: "管理员配置的{field}选择器“{selector}”在这个页面上没有找到，已改用自动识别",
+      usernameField: "用户名输入框",
+      passwordField: "密码输入框",
+      submitField: "登录按钮",
     }
     : {
       filled: "Casdoor filled in the account {user} of {app}",
@@ -44,6 +48,10 @@
       skip: "No thanks",
       saved: "Saved to Casdoor",
       close: "Close",
+      missingSelector: "The {field} selector \"{selector}\" set by the admin matches nothing on this page, so it was found automatically",
+      usernameField: "username input",
+      passwordField: "password input",
+      submitField: "sign-in button",
     };
 
   function format(text, values) {
@@ -78,19 +86,36 @@
     return element.getClientRects().length > 0;
   }
 
+  // a class attribute pasted as it is, like "el-button login-btn el-button--primary", is taken as those classes
+  function selectorCandidates(selector) {
+    const value = selector.trim();
+    const candidates = [value];
+    if (/^[\w-]+(\s+[\w-]+)*$/.test(value)) {
+      candidates.push("." + value.split(/\s+/).join("."));
+    }
+    return candidates;
+  }
+
   function query(selector) {
-    if (!selector) {
+    if (!selector || !selector.trim()) {
       return null;
     }
-    try {
-      return document.querySelector(selector);
-    } catch (error) {
-      return null;
+    for (const candidate of selectorCandidates(selector)) {
+      try {
+        const element = document.querySelector(candidate);
+        if (element) {
+          return element;
+        }
+      } catch (error) {
+        // not a valid selector, try the next way of reading it
+      }
     }
+    return null;
   }
 
   const usernameHints = /user|login|account|email|mail|phone|mobile|tel|name|uid|uname|loginid|工号|账号|帳號|用户|用戶|手机|邮箱/i;
-  const submitHints = /^\s*(登\s*录|登\s*入|登\s*陆|log\s*in|sign\s*in|login|signin|submit|确\s*定|提\s*交|进入系统)\s*$/i;
+  // "登录", "登录系统", "立即登录", "Sign in", ...
+  const submitHints = /^\s*(?:(?:立即|马上|安全|用户|账号)?\s*(?:登\s*录|登\s*入|登\s*陆)\s*(?:系统|平台)?|进入系统|log\s*in|log\s*on|sign\s*in|login|logon|signin|submit|确\s*定|提\s*交)\s*$/i;
 
   function findPassword(site) {
     const configured = query(site.passwordSelector);
@@ -136,8 +161,14 @@
         return button;
       }
     }
-    const clickable = [...document.querySelectorAll("button, input[type=button], input[type=submit], a, [role=button], div[onclick], span[onclick]")];
-    return clickable.find((element) => isVisible(element) && submitHints.test(element.value || element.textContent || "")) || null;
+    // buttons first, so that a link or a tab with the same words loses to the real button
+    for (const selector of ["button, input[type=button], input[type=submit]", "[role=button]", "a, div[onclick], span[onclick]"]) {
+      const found = [...document.querySelectorAll(selector)].find((element) => isVisible(element) && submitHints.test(element.value || element.textContent || ""));
+      if (found) {
+        return found;
+      }
+    }
+    return null;
   }
 
   function setValue(input, value) {
@@ -154,8 +185,11 @@
     for (const type of ["keydown", "keypress", "keyup"]) {
       input.dispatchEvent(new KeyboardEvent(type, {key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true}));
     }
-    if (input.form) {
-      input.form.requestSubmit();
+    // a single-page app (Vue, React, ...) signs in from its own Enter handler, submitting its <form> would only reload
+    // the page; a server-side form says where it goes
+    const form = input.form;
+    if (form && (form.hasAttribute("action") || form.hasAttribute("method"))) {
+      form.requestSubmit();
     }
   }
 
@@ -187,6 +221,7 @@
     title.style.cssText = "font-weight:600;font-size:12px;color:#5c6ac4;margin-bottom:4px;";
     title.textContent = "Casdoor";
     const body = document.createElement("div");
+    body.style.whiteSpace = "pre-line";
     body.textContent = text;
     box.append(title, body);
     if (buttons.length > 0) {
@@ -239,7 +274,14 @@
       showNotice(strings.retry, buttons, 0);
       return;
     }
-    showNotice(format(strings.filled, {app: site.displayName, user: account.username}), buttons);
+    // the admin's selectors that match nothing, so that a wrong one doesn't go unnoticed
+    const missing = [
+      [site.usernameSelector, strings.usernameField],
+      [site.passwordSelector, strings.passwordField],
+      [site.autoSubmit ? site.submitSelector : "", strings.submitField],
+    ].filter(([selector]) => selector && selector.trim() && !query(selector));
+    const warnings = missing.map(([selector, field]) => format(strings.missingSelector, {field, selector}));
+    showNotice([format(strings.filled, {app: site.displayName, user: account.username}), ...warnings].join("\n"), buttons, warnings.length > 0 ? 15000 : 8000);
 
     if (site.autoSubmit && !username) {
       await sleep(400);
