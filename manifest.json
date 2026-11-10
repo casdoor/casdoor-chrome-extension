@@ -1,49 +1,46 @@
 {
-  "name": "Casdoor",
-  "description": "Signs you into the systems without single sign-on by filling their sign-in forms with your accounts kept in Casdoor.",
-  "version": "2.0.0",
   "manifest_version": 3,
-  "permissions": [
-    "storage",
-    "identity",
-    "offscreen"
-  ],
-  "host_permissions": [
-    "https://*/*",
-    "http://*/*"
-  ],
-  "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
-  },
-  "action": {
-    "default_popup": "/src/popup.html",
-    "default_icon": {
-      "16": "/images/icon16.png",
-      "32": "/images/icon32.png",
-      "48": "/images/icon48.png",
-      "128": "/images/icon128.png"
-    }
-  },
-  "icons": {
-    "16": "/images/icon16.png",
-    "32": "/images/icon32.png",
-    "48": "/images/icon48.png",
-    "128": "/images/icon128.png"
-  },
+  "name": "__MSG_extName__",
+  "short_name": "Casdoor",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
+  "version": "0.0.1",
+  "minimum_chrome_version": "116",
+  "homepage_url": "https://github.com/casdoor/casdoor-chrome-extension",
+  "permissions": ["storage", "identity", "offscreen"],
+  "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
-    "service_worker": "/src/background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://*/*",
-        "http://*/*"
-      ],
-      "js": [
-        "/src/content-script.js"
-      ],
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
       "all_frames": true,
       "run_at": "document_idle"
     }
-  ]
+  ],
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_title": "__MSG_extName__",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "storage": {
+    "managed_schema": "managed_schema.json"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
 }

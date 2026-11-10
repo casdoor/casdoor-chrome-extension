@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  width: 368px;
+  margin: 0;
+}
+
+body {
+  @apply bg-white font-sans text-[13px] leading-5 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+}
+
+:focus-visible {
+  @apply outline-none ring-2 ring-brand-500/60 ring-offset-1 ring-offset-white dark:ring-offset-zinc-950;
+}

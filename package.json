@@ -1,20 +1,38 @@
 {
-  "name": "casdoor",
-  "version": "1.0.0",
-  "description": "The Casdoor extension can help browser users automatically log into applications protected by Casdoor single-sign-on (SSO) system.",
+  "name": "casdoor-browser-extension",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Signs users into the systems without single sign-on by filling their sign-in forms with the accounts kept in Casdoor.",
+  "license": "Apache-2.0",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/casdoor/casdoor-chrome-extension.git"
   },
   "scripts": {
+    "build": "node scripts/build.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --experimental-strip-types test/*.test.ts",
     "semantic-release": "semantic-release"
   },
+  "dependencies": {
+    "onnxruntime-web": "1.22.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
   "devDependencies": {
-    "eslint": "^8.21.0",
-    "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-n": "^15.2.4",
-    "eslint-plugin-promise": "^6.0.0",
-    "semantic-release": "^25.0.9"
+    "@types/chrome": "0.0.326",
+    "@types/node": "22.15.30",
+    "@types/react": "18.3.23",
+    "@types/react-dom": "18.3.7",
+    "@vitejs/plugin-react": "4.5.2",
+    "autoprefixer": "10.4.21",
+    "playwright": "1.63.0",
+    "postcss": "8.5.6",
+    "semantic-release": "25.0.9",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.8.3",
+    "vite": "6.3.5"
   }
 }

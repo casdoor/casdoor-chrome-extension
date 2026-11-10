@@ -1,0 +1,191 @@
+{
+  "extName": {
+    "message": "Casdoor"
+  },
+  "extDescription": {
+    "message": "Signs you into the systems without single sign-on by filling their sign-in forms with your accounts kept in Casdoor."
+  },
+  "popupBadge": {
+    "message": "Autofill"
+  },
+  "signInTitle": {
+    "message": "Sign in to your organization"
+  },
+  "signInIntro": {
+    "message": "Casdoor fills the sign-in forms of the systems your admin has set up, with your accounts kept in Casdoor."
+  },
+  "managedNotice": {
+    "message": "Your organization has set the Casdoor server for this browser."
+  },
+  "serverUrlLabel": {
+    "message": "Casdoor server URL"
+  },
+  "applicationLabel": {
+    "message": "Application"
+  },
+  "applicationHint": {
+    "message": "The Casdoor application you sign in with, ask your admin if unsure. Use owner/name for an application of another organization."
+  },
+  "signInButton": {
+    "message": "Sign in with Casdoor"
+  },
+  "signInCancelled": {
+    "message": "The sign-in window was closed before it finished."
+  },
+  "redirectTitle": {
+    "message": "Redirect URL of this build"
+  },
+  "redirectBody": {
+    "message": "This build is not the one from the Chrome Web Store, so add this URL to the redirect URLs of the application first."
+  },
+  "copy": {
+    "message": "Copy"
+  },
+  "copied": {
+    "message": "Copied"
+  },
+  "signOut": {
+    "message": "Sign out"
+  },
+  "autofillLabel": {
+    "message": "Autofill"
+  },
+  "autofillOn": {
+    "message": "Sign-in forms are filled when you open them"
+  },
+  "autofillOff": {
+    "message": "Off, use Fill now on a sign-in page"
+  },
+  "thisPage": {
+    "message": "This page signs in to"
+  },
+  "fillNow": {
+    "message": "Fill now"
+  },
+  "basicTitle": {
+    "message": "Basic autofill"
+  },
+  "basicBody": {
+    "message": "This Casdoor fills your managed accounts into the Signin URL of their applications. The Enterprise edition adds sign-in page rules, captchas and saving accounts."
+  },
+  "loadFailed": {
+    "message": "Couldn't load your systems"
+  },
+  "systemsTitle": {
+    "message": "Your systems"
+  },
+  "refresh": {
+    "message": "Refresh"
+  },
+  "emptyTitle": {
+    "message": "No systems yet"
+  },
+  "emptyBody": {
+    "message": "When your admin turns on form autofill for a system and gives you an account, it shows up here."
+  },
+  "siteSaveOnFirst": {
+    "message": "Saves your account when you sign in"
+  },
+  "siteAccounts": {
+    "message": "$1 accounts"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "fieldUsername": {
+    "message": "username input"
+  },
+  "fieldPassword": {
+    "message": "password input"
+  },
+  "fieldSubmit": {
+    "message": "sign-in button"
+  },
+  "fieldCaptcha": {
+    "message": "captcha input"
+  },
+  "fieldCaptchaImage": {
+    "message": "captcha picture"
+  },
+  "selectorMissing": {
+    "message": "The $1 set by your admin ($2) is not on this page, so it was found automatically."
+  },
+  "chooseAccountTitle": {
+    "message": "Sign in to $1 as"
+  },
+  "chooseAccountBody": {
+    "message": "You have more than one account here. The one you pick is used next time."
+  },
+  "noFormTitle": {
+    "message": "No sign-in form here"
+  },
+  "noFormBody": {
+    "message": "This page of $1 has no sign-in form to fill."
+  },
+  "fillFailedTitle": {
+    "message": "Couldn't fill $1"
+  },
+  "cameBackTitle": {
+    "message": "Filled, not signed in"
+  },
+  "cameBackBody": {
+    "message": "$1 came back to its sign-in page right after the last automatic sign-in, so it was not submitted again. Check the account in Casdoor."
+  },
+  "filledTitle": {
+    "message": "Filled $1"
+  },
+  "filledBody": {
+    "message": "With your account $1"
+  },
+  "signingInTitle": {
+    "message": "Signing in to $1"
+  },
+  "refusedTitle": {
+    "message": "$1 refused the sign-in"
+  },
+  "refusedBody": {
+    "message": "The username or password may be wrong. It was not tried again, so that the account doesn't get locked. Check the account in Casdoor."
+  },
+  "captchaNoInput": {
+    "message": "No captcha input was found."
+  },
+  "captchaNoImage": {
+    "message": "No captcha picture was found."
+  },
+  "captchaCrossOrigin": {
+    "message": "The captcha picture comes from another site and can't be read."
+  },
+  "captchaManual": {
+    "message": "Please type the captcha: $1"
+  },
+  "captchaManualTitle": {
+    "message": "Please type the captcha"
+  },
+  "captchaGaveUpTitle": {
+    "message": "Please type the captcha"
+  },
+  "captchaGaveUpBody": {
+    "message": "The captcha was read $1 times without success."
+  },
+  "saveTitle": {
+    "message": "Save your $1 account to Casdoor?"
+  },
+  "saveBody": {
+    "message": "Casdoor will sign you in as $1 next time."
+  },
+  "saveSkip": {
+    "message": "Not now"
+  },
+  "saveConfirm": {
+    "message": "Save"
+  },
+  "savedTitle": {
+    "message": "Saved to Casdoor"
+  },
+  "savedBody": {
+    "message": "You'll be signed in to $1 automatically."
+  },
+  "saveFailedTitle": {
+    "message": "Couldn't save the account"
+  }
+}

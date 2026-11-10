@@ -1,0 +1,191 @@
+{
+  "extName": {
+    "message": "Casdoor"
+  },
+  "extDescription": {
+    "message": "用你在 Casdoor 里的账号填写没有单点登录的系统的登录表单，自动登录。"
+  },
+  "popupBadge": {
+    "message": "代填"
+  },
+  "signInTitle": {
+    "message": "登录你所在单位的 Casdoor"
+  },
+  "signInIntro": {
+    "message": "管理员配置好的系统，打开登录页时 Casdoor 会用你托管在 Casdoor 里的账号自动填写。"
+  },
+  "managedNotice": {
+    "message": "你的单位已经为这个浏览器设好了 Casdoor 地址。"
+  },
+  "serverUrlLabel": {
+    "message": "Casdoor 地址"
+  },
+  "applicationLabel": {
+    "message": "应用"
+  },
+  "applicationHint": {
+    "message": "用来登录的 Casdoor 应用，不清楚请问管理员。其他组织的应用写成 组织名/应用名。"
+  },
+  "signInButton": {
+    "message": "用 Casdoor 登录"
+  },
+  "signInCancelled": {
+    "message": "登录窗口还没完成就被关掉了。"
+  },
+  "redirectTitle": {
+    "message": "这个版本的回调地址"
+  },
+  "redirectBody": {
+    "message": "这不是 Chrome 应用商店里的版本，要先把这个地址加到应用的回调地址里。"
+  },
+  "copy": {
+    "message": "复制"
+  },
+  "copied": {
+    "message": "已复制"
+  },
+  "signOut": {
+    "message": "退出"
+  },
+  "autofillLabel": {
+    "message": "自动代填"
+  },
+  "autofillOn": {
+    "message": "打开登录页时自动填写"
+  },
+  "autofillOff": {
+    "message": "已关闭，可在登录页上点“立即填写”"
+  },
+  "thisPage": {
+    "message": "当前页面是这个系统的登录页"
+  },
+  "fillNow": {
+    "message": "立即填写"
+  },
+  "basicTitle": {
+    "message": "基础代填"
+  },
+  "basicBody": {
+    "message": "这个 Casdoor 只把托管账户填进对应应用的登录地址。企业版还支持按登录页配置规则、识别验证码和保存账号。"
+  },
+  "loadFailed": {
+    "message": "没能读取你的系统"
+  },
+  "systemsTitle": {
+    "message": "我的系统"
+  },
+  "refresh": {
+    "message": "刷新"
+  },
+  "emptyTitle": {
+    "message": "还没有系统"
+  },
+  "emptyBody": {
+    "message": "管理员为某个系统开启表单代填并给你配好账号后，会显示在这里。"
+  },
+  "siteSaveOnFirst": {
+    "message": "登录时保存账号"
+  },
+  "siteAccounts": {
+    "message": "$1 个账号"
+  },
+  "close": {
+    "message": "关闭"
+  },
+  "fieldUsername": {
+    "message": "用户名输入框"
+  },
+  "fieldPassword": {
+    "message": "密码输入框"
+  },
+  "fieldSubmit": {
+    "message": "登录按钮"
+  },
+  "fieldCaptcha": {
+    "message": "验证码输入框"
+  },
+  "fieldCaptchaImage": {
+    "message": "验证码图片"
+  },
+  "selectorMissing": {
+    "message": "管理员配置的$1（$2）在这个页面上没有找到，已改用自动识别。"
+  },
+  "chooseAccountTitle": {
+    "message": "用哪个账号登录 $1"
+  },
+  "chooseAccountBody": {
+    "message": "你在这里有多个账号，选过的下次会直接用。"
+  },
+  "noFormTitle": {
+    "message": "这里没有登录表单"
+  },
+  "noFormBody": {
+    "message": "$1 的这个页面上没有可以填写的登录表单。"
+  },
+  "fillFailedTitle": {
+    "message": "没能填写 $1"
+  },
+  "cameBackTitle": {
+    "message": "已填写，没有自动登录"
+  },
+  "cameBackBody": {
+    "message": "上次自动登录后 $1 又回到了登录页，这次没有再提交。请检查 Casdoor 里的账号。"
+  },
+  "filledTitle": {
+    "message": "已填写 $1"
+  },
+  "filledBody": {
+    "message": "使用你的账号 $1"
+  },
+  "signingInTitle": {
+    "message": "正在登录 $1"
+  },
+  "refusedTitle": {
+    "message": "$1 拒绝了登录"
+  },
+  "refusedBody": {
+    "message": "用户名或密码可能不对。为了不锁定账号，没有再试。请检查 Casdoor 里的账号。"
+  },
+  "captchaNoInput": {
+    "message": "没有找到验证码输入框。"
+  },
+  "captchaNoImage": {
+    "message": "没有找到验证码图片。"
+  },
+  "captchaCrossOrigin": {
+    "message": "验证码图片来自其他网站，读不到。"
+  },
+  "captchaManual": {
+    "message": "请手动输入验证码：$1"
+  },
+  "captchaManualTitle": {
+    "message": "请手动输入验证码"
+  },
+  "captchaGaveUpTitle": {
+    "message": "请手动输入验证码"
+  },
+  "captchaGaveUpBody": {
+    "message": "验证码自动识别了 $1 次都没有通过。"
+  },
+  "saveTitle": {
+    "message": "把 $1 的账号保存到 Casdoor？"
+  },
+  "saveBody": {
+    "message": "下次会用 $1 自动登录。"
+  },
+  "saveSkip": {
+    "message": "暂不"
+  },
+  "saveConfirm": {
+    "message": "保存"
+  },
+  "savedTitle": {
+    "message": "已保存到 Casdoor"
+  },
+  "savedBody": {
+    "message": "下次打开 $1 会自动登录。"
+  },
+  "saveFailedTitle": {
+    "message": "没能保存账号"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "serverUrl": {
+      "title": "Casdoor server URL",
+      "description": "The address of the organization's Casdoor, e.g. https://door.example.com. Users can't change it when it is set.",
+      "type": "string"
+    },
+    "application": {
+      "title": "Casdoor application",
+      "description": "The application to sign in to the extension with, as name or owner/name. Users can't change it when it is set.",
+      "type": "string"
+    }
+  }
+}

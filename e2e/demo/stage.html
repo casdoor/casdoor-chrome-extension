@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Casdoor extension demo</title>
+    <link rel="stylesheet" href="stage.css" />
+  </head>
+  <body>
+    <main class="window">
+      <div class="toolbar">
+        <span class="lights"><i></i><i></i><i></i></span>
+        <span class="nav">
+          <svg viewBox="0 0 16 16"><path d="M10 3 5 8l5 5" /></svg>
+          <svg viewBox="0 0 16 16"><path d="m6 3 5 5-5 5" /></svg>
+          <svg viewBox="0 0 16 16"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 3v3h-3" /></svg>
+        </span>
+        <div class="address"><svg viewBox="0 0 16 16"><rect x="4" y="7" width="8" height="6" rx="1.5" /><path d="M6 7V5.5a2 2 0 0 1 4 0V7" /></svg><span id="url">New Tab</span></div>
+        <button class="extension" id="extension" aria-label="Casdoor"><img src="../icons/icon32.png" alt="" /></button>
+      </div>
+      <div class="content">
+        <section class="intro" id="intro">
+          <img src="../icons/icon128.png" alt="" />
+          <h1>Casdoor browser extension</h1>
+          <p>Signs your people into the systems without single sign-on,<br />with the accounts kept in Casdoor.</p>
+        </section>
+        <iframe id="site" title="site"></iframe>
+      </div>
+      <div class="popup" id="popup"><iframe id="popupFrame" title="Casdoor popup"></iframe></div>
+    </main>
+    <footer class="caption" id="caption"><b id="captionStep"></b><span id="captionText"></span></footer>
+    <div class="cursor" id="cursor"><svg viewBox="0 0 24 24"><path d="M5 3l14 7.5-6.2 1.6L10 18z" /></svg></div>
+    <script src="stage.js"></script>
+  </body>
+</html>

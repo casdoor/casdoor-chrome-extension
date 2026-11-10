@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  build:
+    name: Check and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+      - run: yarn typecheck
+      - run: yarn test
+      - run: yarn build
+
+  release:
+    name: Release
+    needs: build
+    if: github.event_name == 'push' && github.repository == 'casdoor/casdoor-chrome-extension'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+      - name: Release
+        run: yarn semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Package
+        id: package
+        run: |
+          tag=$(git tag --points-at HEAD | grep '^v' | head -n 1)
+          if [ -z "$tag" ]; then
+            echo "No new release, nothing to package"
+            exit 0
+          fi
+          # the version only lives in the tag, it goes into the manifest of the build and is not committed
+          EXTENSION_VERSION="${tag#v}" yarn build
+          (cd dist && zip -qr ../casdoor-extension.zip .)
+          # a package without the captcha model or ONNX Runtime can't read captchas
+          unzip -l casdoor-extension.zip | grep -q "models/ddddocr/common_old.onnx"
+          unzip -l casdoor-extension.zip | grep -q "ort/ort-wasm-simd-threaded.wasm"
+          gh release upload "$tag" casdoor-extension.zip --clobber
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish to the Chrome Web Store
+        if: steps.package.outputs.tag != ''
+        run: |
+          if [ -z "$CLIENT_ID" ] || [ -z "$CLIENT_SECRET" ] || [ -z "$REFRESH_TOKEN" ] || [ -z "$PUBLISHER_ID" ]; then
+            echo "::warning::The Chrome Web Store secrets are not set, ${{ steps.package.outputs.tag }} is only attached to the GitHub release"
+            exit 0
+          fi
+          if ! output=$(npx --yes chrome-webstore-upload-cli@4.0.2 --source casdoor-extension.zip 2>&1); then
+            echo "$output"
+            # the store takes no new version while one is in review: run this job again once the review is done
+            if echo "$output" | grep -q "in review"; then
+              echo "::warning::A version is in review in the Chrome Web Store, ${{ steps.package.outputs.tag }} was not uploaded. Re-run this job after the review, or cancel the review in the developer dashboard first"
+              exit 0
+            fi
+            # e.g. a new permission without its justification, or a URL of the listing that can't be reached
+            if echo "$output" | grep -q "does not meet the requirements"; then
+              echo "::error::${{ steps.package.outputs.tag }} was uploaded but can't be submitted, see \"Why can't I submit?\" in the developer dashboard"
+            fi
+            exit 1
+          fi
+          echo "$output"
+        env:
+          EXTENSION_ID: bnjbegmkpjbcpneclidlbloadenondlm
+          PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
