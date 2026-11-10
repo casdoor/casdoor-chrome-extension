@@ -13,7 +13,8 @@
 // limitations under the License.
 
 // The sign-in page patterns of form autofill, matched the same way as Casdoor matches them (object/form_fill.go):
-// the host has to be the same, "*.example.com" covers the subdomains, and a path without "*" is a prefix.
+// the host has to be the same, "*.example.com" covers the subdomains, a path without "*" is a prefix, and the part
+// after "#" is compared only when the pattern has it.
 
 function splitFormFillUrl(value) {
   value = (value || "").trim();
@@ -66,7 +67,8 @@ function matchFormFillUrl(pattern, pageUrl) {
   if (!matchFormFillHost(patternHost, pageHost)) {
     return false;
   }
-  const pagePath = fullPagePath.split("#")[0];
+  // the fragment only counts when the pattern has one, like the "#/login" route of a single-page application
+  const pagePath = patternPath.includes("#") ? fullPagePath : fullPagePath.split("#")[0];
   if (!patternPath.includes("*")) {
     return pagePath.startsWith(patternPath);
   }
