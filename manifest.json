@@ -1,11 +1,15 @@
 {
-  "name": "Casdoor Browser Plugin",
-  "description": "Casdoor Browser Plugin can help the users automatically log into applications protected by Casdoor identity provider.",
-  "version": "1.0.0",
+  "name": "Casdoor",
+  "description": "Signs you into the systems without single sign-on by filling their sign-in forms with your accounts kept in Casdoor.",
+  "version": "2.0.0",
   "manifest_version": 3,
   "permissions": [
     "storage",
     "identity"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
   ],
   "action": {
     "default_popup": "/src/popup.html",
@@ -22,6 +26,9 @@
     "48": "/images/icon48.png",
     "128": "/images/icon128.png"
   },
+  "background": {
+    "service_worker": "/src/background.js"
+  },
   "content_scripts": [
     {
       "matches": [
@@ -29,18 +36,10 @@
         "http://*/*"
       ],
       "js": [
-        "/src/content-script.js",
-        "/src/sdk.js",
-        "/src/oauth.js",
-        "/src/config.js"
-      ]
+        "/src/content-script.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_idle"
     }
-  ],
-    "background": {
-        "service_worker": "/src/background.js"
-      },
-  "host_permissions": [
-    "https://*/*",
-    "http://*/*"
   ]
 }

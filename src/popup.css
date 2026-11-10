@@ -1,106 +1,162 @@
-.background {
+[hidden] {
+    display: none !important;
+}
+
+body {
+    margin: 0;
+    font: 13px/1.5 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: #1f2328;
+}
+
+.popup {
     width: 300px;
-    height: 210px;
+    padding: 14px 16px 16px;
 }
 
-.title {
-    text-align: center;
+.header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
-.item {
+.header h1 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.user img {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-weight: 600;
+}
+
+.field {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.field span {
+    display: block;
+    margin-bottom: 4px;
+    color: #59636e;
+}
+
+.field input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    font: inherit;
+}
+
+.field input:disabled {
+    background: #f6f8fa;
+    color: #59636e;
+}
+
+.row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
+    margin: 4px 0 12px;
+}
+
+.sites {
     margin-bottom: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: #f6f8fa;
+}
+
+.sites ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+}
+
+.muted {
+    color: #59636e;
+}
+
+.small {
+    margin-top: 10px;
+    font-size: 11px;
+    word-break: break-all;
+}
+
+#message {
+    margin-bottom: 10px;
+}
+
+#message:empty {
+    display: none;
+}
+
+button.primary {
+    width: 100%;
+    padding: 7px 0;
+    border: 0;
+    border-radius: 6px;
+    background: #5c6ac4;
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+
+button.primary:disabled {
+    opacity: .6;
+    cursor: default;
 }
 
 .switch {
     position: relative;
-    display : inline-block;
-    width   : 50px;
-    height  : 24px;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
 }
 
 .switch input {
     opacity: 0;
-    width  : 0;
-    height : 0;
+    width: 0;
+    height: 0;
 }
 
 .slider {
-    position          : absolute;
-    cursor            : pointer;
-    top               : 0;
-    left              : 0;
-    right             : 0;
-    bottom            : 0;
-    background-color  : #ccc;
-    -webkit-transition: .4s;
-    transition        : .4s;
-    border-radius     : 34px;
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    transition: .2s;
+    border-radius: 22px;
 }
 
 .slider:before {
-    position          : absolute;
-    content           : "";
-    height            : 20px;
-    width             : 20px;
-    left              : 2px;
-    top               : 2px;
-    background-color  : white;
-    -webkit-transition: .4s;
-    transition        : .4s;
-    border-radius     : 50%;
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    top: 2px;
+    background-color: white;
+    transition: .2s;
+    border-radius: 50%;
 }
 
-input:checked+.slider {
-    background-color: rgb(0, 166, 255);
+input:checked + .slider {
+    background-color: #5c6ac4;
 }
 
-input:checked+.slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform    : translateX(26px);
-    transform        : translateX(26px);
-}
-
-.control {
-    color: rgba(0, 0, 0, .85);
-    font-size: 14px;
-    list-style: none;
-    max-width: 100%;
-    text-align: center;
-    display: flex;
-    position: relative;
-    align-items: center;
-    justify-content: center;
-}
-
-.control button {
-    border-radius: 2px;
-    border: 0;
-    padding: 6px 8px 6px 8px;
-    margin-bottom: 5px;
-}
-
-.control .primary {
-    color: #fff;
-    border-color: #2d78d5;
-    background: #2d78d5;
-    text-shadow: 0 -1px 0 rgb(0 0 0 / 12%);
-    box-shadow: 0 2px 0 rgb(0 0 0 / 5%);
-}
-
-.control .primary:hover {
-    color: #fff;
-    border-color: #5499e3;
-    background: #5499e3;
-}
-
-#user {
-    text-align: center;
-}
-
-.input {
-    width: 180px;
+input:checked + .slider:before {
+    transform: translateX(18px);
 }

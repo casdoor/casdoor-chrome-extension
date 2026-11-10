@@ -1,34 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-<div class="background">
-    <h1 class="title" id="title">Casdoor</h1>
-    <div id="user"></div>
-    <div class="item">
-        endpoint:
-        <input class="input" id="endpoint" name="endpoint" placeholder="your casdoor server url"/>
+<div class="popup">
+    <div class="header">
+        <img src="/images/icon48.png" alt="" width="24" height="24">
+        <h1>Casdoor</h1>
     </div>
-    <div class="item">
-        applicationName:
-        <input class="input" id="applicationName" name="applicationName" placeholder="your application name"/>
+
+    <div id="user" class="user" hidden>
+        <img id="avatar" alt="" width="36" height="36">
+        <div>
+            <div id="userName" class="user-name"></div>
+            <div id="userOrg" class="muted"></div>
+        </div>
     </div>
-    <div class="item">
-        Enable auto login:
+
+    <label class="field">
+        <span data-i18n="endpoint"></span>
+        <input id="endpoint" placeholder="https://door.casdoor.com">
+    </label>
+    <label class="field">
+        <span data-i18n="application"></span>
+        <input id="applicationName" placeholder="app-built-in">
+    </label>
+
+    <div class="row">
+        <span data-i18n="autoFill"></span>
         <label class="switch">
-            <input type="checkbox" id="enableAutoLogin">
+            <input type="checkbox" id="autoFill">
             <span class="slider"></span>
         </label>
     </div>
-    <div class="control">
-        <button class="primary" id="loginOrLogout">Login</button>
-    </div>
+
+    <div id="sites" class="sites" hidden></div>
+    <div id="message" class="muted"></div>
+
+    <button class="primary" id="loginOrLogout"></button>
+    <div class="muted small"><span data-i18n="redirectUri"></span> <code id="redirectUri"></code></div>
 </div>
-<script src="config.js"></script>
-<script src="sdk.js"></script>
-<script src="oauth.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>
