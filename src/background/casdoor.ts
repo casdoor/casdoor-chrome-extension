@@ -96,14 +96,15 @@ async function getUser(serverUrl: string, accessToken: string): Promise<User> {
 }
 
 export async function signIn(input: Connection): Promise<void> {
-  const {connection: current, managed} = await getConnection();
-  const connection: Connection = managed
-    ? current
-    : {serverUrl: normalizeServerUrl(input.serverUrl), application: input.application.trim()};
+  const {connection: current, managed, managedApplication} = await getConnection();
+  const connection: Connection = {
+    serverUrl: normalizeServerUrl(managed ? current.serverUrl : input.serverUrl),
+    application: managedApplication ? current.application : input.application.trim(),
+  };
   if (!connection.serverUrl || !connection.application) {
     throw new RequestError("Enter the Casdoor server URL and the application", "connection");
   }
-  if (!managed) {
+  if (!managedApplication) {
     await setLocal({connection});
   }
 

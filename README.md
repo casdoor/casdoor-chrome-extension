@@ -63,6 +63,17 @@ Windows Registry Editor Version 5.00
 
 The same two settings, `serverUrl` and `application`, can be pushed from the Google Admin console, macOS profiles or Linux policy files. Their schema is [public/managed_schema.json](public/managed_schema.json).
 
+Without Chrome policies, preset the package instead: unzip `casdoor-extension.zip` from the release, fill in `config.json` at its root and hand the folder out. Users load it unpacked and sign in right away, with the Casdoor URL and the application they can't change:
+
+```json
+{
+  "serverUrl": "https://door.example.com",
+  "application": "app-example"
+}
+```
+
+The package keeps the ID of the store's extension, so Casdoor accepts its redirect URL as it is. A policy, where there is one, wins over `config.json`.
+
 ### Open-source edition
 
 Casdoor without an Enterprise license fills each user's managed accounts into the **Signin URL** of their applications, matched as a sign-in page address above, and submits them. Sign-in page rules, selectors, captchas and saving accounts need the Enterprise edition.

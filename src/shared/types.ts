@@ -66,6 +66,8 @@ export interface Status {
   connection: Connection;
   /** The connection is set by a policy and can't be changed */
   managed: boolean;
+  /** The application is set along with the server URL and can't be changed either */
+  managedApplication: boolean;
   user: User | null;
   autofill: boolean;
   /** The form autofill of the Casdoor enterprise edition, false when only the managed accounts are filled */

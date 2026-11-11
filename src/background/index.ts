@@ -137,10 +137,11 @@ const pageHandlers: PageHandlers = {
 };
 
 async function getStatus(refresh: boolean): Promise<Status> {
-  const [{connection, managed}, session, local] = await Promise.all([getConnection(), getSession(), getLocal()]);
+  const [{connection, managed, managedApplication}, session, local] = await Promise.all([getConnection(), getSession(), getLocal()]);
   const status: Status = {
     connection,
     managed,
+    managedApplication,
     user: session?.user ?? null,
     autofill: local.autofill !== false,
     full: true,

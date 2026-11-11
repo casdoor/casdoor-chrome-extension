@@ -59,7 +59,7 @@ export function SignIn({status, onStatus}: {status: Status; onStatus: (status: S
           placeholder="app-built-in"
           value={application}
           onChange={(event) => setApplication(event.target.value)}
-          disabled={status.managed && !!status.connection.application}
+          disabled={status.managedApplication}
           required
         />
       </Field>

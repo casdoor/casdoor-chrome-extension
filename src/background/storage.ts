@@ -51,15 +51,39 @@ export async function getManagedConnection(): Promise<Partial<Connection>> {
   }
 }
 
-export async function getConnection(): Promise<{connection: Connection; managed: boolean}> {
-  const [{connection}, policy] = await Promise.all([getLocal(), getManagedConnection()]);
-  const managed = !!policy.serverUrl;
+let preset: Promise<Partial<Connection>> | undefined;
+
+/**
+ * The connection written into config.json of the unzipped package by whoever hands it out, so that it works as soon as
+ * it is loaded. It's empty in the packages we publish.
+ */
+export function getPresetConnection(): Promise<Partial<Connection>> {
+  preset ??= fetch(chrome.runtime.getURL("config.json"))
+    .then((response) => (response.ok ? response.json() : null))
+    .then((config: {serverUrl?: unknown; application?: unknown} | null) => ({
+      serverUrl: typeof config?.serverUrl === "string" ? config.serverUrl.trim() : undefined,
+      application: typeof config?.application === "string" ? config.application.trim() : undefined,
+    }))
+    .catch(() => ({}));
+  return preset;
+}
+
+/**
+ * The Chrome policy wins over config.json, which wins over what the user entered. Users can't change the server URL
+ * once one of the two sets it, nor the application when it's set along with it.
+ */
+export async function getConnection(): Promise<{connection: Connection; managed: boolean; managedApplication: boolean}> {
+  const [{connection}, policy, presetConnection] = await Promise.all([getLocal(), getManagedConnection(), getPresetConnection()]);
+  const fixed = policy.serverUrl ? policy : presetConnection;
+  const managed = !!fixed.serverUrl;
+  const managedApplication = managed && !!fixed.application;
   return {
     connection: {
-      serverUrl: policy.serverUrl || connection?.serverUrl || "",
-      application: policy.application || connection?.application || "",
+      serverUrl: fixed.serverUrl || connection?.serverUrl || "",
+      application: (managedApplication ? fixed.application : connection?.application) || "",
     },
     managed,
+    managedApplication,
   };
 }
 
