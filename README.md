@@ -1,5 +1,7 @@
 # Casdoor browser extension
 
+English | [中文](README.zh-CN.md)
+
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/bnjbegmkpjbcpneclidlbloadenondlm?label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/casdoor-browser-plugin/bnjbegmkpjbcpneclidlbloadenondlm)
 [![Release](https://github.com/casdoor/casdoor-chrome-extension/actions/workflows/release.yml/badge.svg)](https://github.com/casdoor/casdoor-chrome-extension/actions/workflows/release.yml)
 [![License](https://img.shields.io/github/license/casdoor/casdoor-chrome-extension)](LICENSE)
@@ -20,9 +22,48 @@ The Casdoor browser extension signs people into the systems that have no single 
 
 ## Install
 
-Install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/casdoor-browser-plugin/bnjbegmkpjbcpneclidlbloadenondlm). It works in Chrome, Edge and other Chromium browsers that take extensions from the Chrome Web Store.
+Install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/casdoor-browser-plugin/bnjbegmkpjbcpneclidlbloadenondlm). It works in Chrome 116 and later, and in Edge and other Chromium browsers that take extensions from the Chrome Web Store (in Edge, allow extensions from other stores when it asks).
 
-Where the store can't be reached, download `casdoor-extension.zip` from the [latest release](https://github.com/casdoor/casdoor-chrome-extension/releases/latest), unzip it, open `chrome://extensions`, turn on **Developer mode** and click **Load unpacked**. The package has the public key of the store's extension in its manifest, so it gets the same ID and redirect URL wherever it's unzipped. Remove it before installing the extension from the store, Chrome takes the two as the same extension.
+Where the store can't be reached:
+
+1. Download `casdoor-extension.zip` from the [latest release](https://github.com/casdoor/casdoor-chrome-extension/releases/latest) and unzip it into a folder that stays there, since the browser loads the extension from it every time it starts.
+2. Open `chrome://extensions` (`edge://extensions` in Edge) and turn on **Developer mode**.
+3. Click **Load unpacked** and pick the folder, the one with `manifest.json` in it.
+
+The package has the public key of the store's extension in its manifest, so it gets the same ID and redirect URL wherever it's unzipped. Remove it before installing the extension from the store, the browser takes the two as the same extension. To update it, unzip the new release over the folder and click the reload button of the extension in `chrome://extensions`.
+
+Pin the extension to the toolbar (the puzzle piece button, then the pin next to Casdoor) so its popup is one click away.
+
+## Use it
+
+### Sign in to Casdoor
+
+Click the Casdoor button in the toolbar. Enter the **Casdoor server URL**, such as `https://door.example.com`, and the **Application** your admin gave you, then click **Sign in with Casdoor**. A Casdoor sign-in window opens; sign in there as you always do, with your password, a code, a QR code or a third-party account, and it closes by itself.
+
+Where your organization has set them up for the browser, the URL and the application are already there and can't be changed, so you only click **Sign in with Casdoor**.
+
+You stay signed in, the extension renews its sign-in in the background. Click **Sign out** in the popup to sign out of the extension; it doesn't sign you out of the systems you're in.
+
+### Your systems
+
+Once you're signed in, the popup lists **Your systems**: each one with the account you have there, or with "Saves your account when you sign in" where you have none yet. Click one to open its sign-in page. Click **Refresh** after your admin adds a system or an account. The link at the bottom opens your Casdoor account page.
+
+### Signing in to a system
+
+Open the sign-in page of a system as usual. The extension fills in your username and password, and signs in when your admin has turned on automatic submit; a card in the top right corner of the page says what it did. When automatic submit is off, check the page and click the system's own sign-in button.
+
+- **More than one account.** The extension asks which one to use, and uses the same one next time without asking.
+- **Image captchas.** When the admin turns on captcha recognition, the extension reads the captcha on your computer and types it. A wrong captcha is read again with a new picture, up to three times; after that, or where the picture can't be read, it asks you to type it.
+- **A wrong password.** If the system refuses the username or password, the extension says so and doesn't try again, so that the account doesn't get locked. Ask your admin to correct the account in Casdoor.
+- **Back on the sign-in page.** If the system shows its sign-in page again within 30 seconds of an automatic sign-in, the extension fills it but doesn't submit it again, and asks you to check the account.
+
+### Saving an account
+
+For a system where your admin lets users save their accounts, sign in by hand once. When the sign-in goes through, the extension asks **Save your account to Casdoor?** Click **Save** and you are signed in automatically from then on, or **Not now** to forget it. The password is kept by the extension for at most two minutes while it asks, and goes to Casdoor only if you click Save.
+
+### Autofill on and off
+
+The **Autofill** switch in the popup turns automatic filling off for this browser, for example to sign in to a system with another account. When the current tab is the sign-in page of one of your systems, the popup shows the system with a **Fill now** button, which fills the page once, also while autofill is off.
 
 ## Set it up in Casdoor
 
@@ -72,11 +113,22 @@ Without Chrome policies, preset the package instead: unzip `casdoor-extension.zi
 }
 ```
 
-The package keeps the ID of the store's extension, so Casdoor accepts its redirect URL as it is. A policy, where there is one, wins over `config.json`.
+The package keeps the ID of the store's extension, so Casdoor accepts its redirect URL as it is. A policy, where there is one, wins over `config.json`. After changing `config.json` in a loaded folder, click the reload button of the extension in `chrome://extensions`.
 
 ### Open-source edition
 
 Casdoor without an Enterprise license fills each user's managed accounts into the **Signin URL** of their applications, matched as a sign-in page address above, and submits them. Sign-in page rules, selectors, captchas and saving accounts need the Enterprise edition.
+
+## Troubleshooting
+
+| What happens | Why, and what to do |
+| --- | --- |
+| Casdoor says the redirect URL is not allowed | The extension was built without the store's key, so it has a redirect URL of its own. Use the store's extension or the package of a release, or add the URL shown under the sign-in form of the popup to the **Redirect URLs** of the application. |
+| The popup says there is no such application | Check the application's name with your admin, and write `owner/name` for an application of another organization. |
+| Nothing is filled on a sign-in page | Check that you're signed in to the extension, that **Autofill** is on, and that the system is in **Your systems**. If it is, the page's address may not match the sign-in page addresses of the system; ask your admin. **Fill now** in the popup tries the page once. |
+| A card says a field set by the admin isn't on the page | The page changed; the extension found the field by itself this time. Ask your admin to update the CSS selector. |
+| You're asked to sign in to the extension again | The sign-in expired and couldn't be renewed. The application needs the `refresh_token` grant type. |
+| The popup says "Basic autofill" | The Casdoor has no Enterprise license, see [Open-source edition](#open-source-edition). |
 
 ## Privacy and security
 
@@ -107,7 +159,7 @@ yarn test         # unit tests of the sign-in page matching
 | `src/popup` | the popup |
 | `src/offscreen` | the page that reads captchas with ONNX Runtime Web |
 | `src/shared` | the messages between them, the sign-in page matching, the types |
-| `public` | the manifest's locales, icons, policy schema and the captcha model |
+| `public` | the manifest's locales, icons, policy schema, the captcha model and `config.json` |
 | `e2e` | the end-to-end test, the made-up systems it signs in to, and the recording of the demo video |
 
 ### End-to-end test
@@ -126,7 +178,7 @@ CASDOOR_ADMIN_PASSWORD=<password of the admin> node e2e/run.mjs
 
 ### Releases
 
-Every commit on `master` is released by semantic-release with the version from the commit messages (`feat:` and `fix:`). The release workflow writes the version into the manifest, attaches `casdoor-extension.zip` to the GitHub release and submits it to the Chrome Web Store, where it is published once it passes the review.
+Every commit on `master` is released by semantic-release with the version from the commit messages (`feat:` and `fix:`). The release workflow writes the version into the manifest, attaches `casdoor-extension.zip`, which has the store's public key, to the GitHub release, and submits the same build without the key to the Chrome Web Store, where it is published once it passes the review.
 
 ## License
 
