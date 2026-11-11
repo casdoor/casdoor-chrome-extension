@@ -19,6 +19,7 @@ The Casdoor browser extension signs people into the systems that have no single 
 - Offers to save the account that the user signs in with by hand, so that it is filled next time, when the admin allows it.
 - Fills a sign-in page that comes back within 30 seconds of an automatic sign-in without submitting it again, and says so.
 - Shows the user's systems in its popup, opens them, and fills the current page on demand when automatic filling is turned off.
+- Protects the sign-in pages of the systems: the browser doesn't offer to save the passwords there, and the developer tools are kept away from them as far as a page can.
 
 ## Install
 
@@ -61,6 +62,17 @@ Open the sign-in page of a system as usual. The extension fills in your username
 
 For a system where your admin lets users save their accounts, sign in by hand once. When the sign-in goes through, the extension asks **Save your account to Casdoor?** Click **Save** and you are signed in automatically from then on, or **Not now** to forget it. The password is kept by the extension for at most two minutes while it asks, and goes to Casdoor only if you click Save.
 
+### Protected sign-in pages
+
+On the sign-in pages of your systems, the extension keeps the passwords to itself:
+
+- The browser doesn't offer to save the password there, whether the extension filled it or you typed it. Chrome only has the one setting for all sites, so the extension turns it off while a tab is on such a page and gives your own setting back 10 seconds after it leaves; other sites don't offer to save in those seconds either.
+- F12, Ctrl+Shift+I, J and C (Cmd+Option+I, J and C on macOS), Ctrl+U and the context menu with **Inspect** do nothing on these pages.
+- No password is filled while the developer tools are open next to the page, and one that was filled is taken out when they open, with a card that asks you to close them. It is filled as soon as they are closed.
+- A form that is signed in automatically gets its password only right before it is submitted, and has it taken out again if it stays on the page.
+
+The developer tools can still be opened from the browser's menu, and when they are undocked into a window of their own a page can't tell, so this raises the bar rather than locking them out. To disable the developer tools for good, use the Chrome policies `DeveloperToolsAvailability` or `DeveloperToolsAvailabilityBlocklist`. IT can turn the protection off with `"protectSignInPages": false` in a policy or in `config.json`, see [Roll it out to a whole organization](#roll-it-out-to-a-whole-organization).
+
 ### Autofill on and off
 
 The **Autofill** switch in the popup turns automatic filling off for this browser, for example to sign in to a system with another account. When the current tab is the sign-in page of one of your systems, the popup shows the system with a **Fill now** button, which fills the page once, also while autofill is off.
@@ -102,18 +114,19 @@ Windows Registry Editor Version 5.00
 "application"="app-example"
 ```
 
-The same two settings, `serverUrl` and `application`, can be pushed from the Google Admin console, macOS profiles or Linux policy files. Their schema is [public/managed_schema.json](public/managed_schema.json).
+The same settings, `serverUrl`, `application` and `protectSignInPages`, can be pushed from the Google Admin console, macOS profiles or Linux policy files. Their schema is [public/managed_schema.json](public/managed_schema.json).
 
 Without Chrome policies, preset the package instead: unzip `casdoor-extension.zip` from the release, fill in `config.json` at its root and hand the folder out. Users load it unpacked and sign in right away, with the Casdoor URL and the application they can't change:
 
 ```json
 {
   "serverUrl": "https://door.example.com",
-  "application": "app-example"
+  "application": "app-example",
+  "protectSignInPages": true
 }
 ```
 
-The package keeps the ID of the store's extension, so Casdoor accepts its redirect URL as it is. A policy, where there is one, wins over `config.json`. After changing `config.json` in a loaded folder, click the reload button of the extension in `chrome://extensions`.
+`protectSignInPages` is on when it isn't set, see [Protected sign-in pages](#protected-sign-in-pages). The package keeps the ID of the store's extension, so Casdoor accepts its redirect URL as it is. A policy, where there is one, wins over `config.json`. After changing `config.json` in a loaded folder, click the reload button of the extension in `chrome://extensions`.
 
 ### Open-source edition
 
@@ -128,6 +141,7 @@ Casdoor without an Enterprise license fills each user's managed accounts into th
 | Nothing is filled on a sign-in page | Check that you're signed in to the extension, that **Autofill** is on, and that the system is in **Your systems**. If it is, the page's address may not match the sign-in page addresses of the system; ask your admin. **Fill now** in the popup tries the page once. |
 | A card says a field set by the admin isn't on the page | The page changed; the extension found the field by itself this time. Ask your admin to update the CSS selector. |
 | You're asked to sign in to the extension again | The sign-in expired and couldn't be renewed. The application needs the `refresh_token` grant type. |
+| A card asks to close the developer tools, which aren't open | The browser's side panel takes room from the page the same way. Close it and the page is filled. |
 | The popup says "Basic autofill" | The Casdoor has no Enterprise license, see [Open-source edition](#open-source-edition). |
 
 ## Privacy and security
@@ -136,6 +150,7 @@ Casdoor without an Enterprise license fills each user's managed accounts into th
 - A page gets an account only when its own address is a sign-in page of the system. Casdoor checks the address again before it hands the account out, and records every time it does.
 - The extension doesn't keep passwords. An account typed by hand is held for at most two minutes while the extension asks whether to save it, and is sent to Casdoor only if the user says so.
 - Captcha pictures are read on the user's computer and never sent anywhere. On other pages the extension reads and sends nothing.
+- The `privacy` permission is only used to turn off the browser's offer to save passwords while a tab is on a sign-in page of the systems, and to give the user's setting back.
 
 The privacy policy is at [casdoor.com/privacy](https://www.casdoor.com/privacy#browser-extension).
 

@@ -38,34 +38,45 @@ export async function removeLocal(keys: (keyof Local)[]): Promise<void> {
   await chrome.storage.local.remove(keys);
 }
 
-/** The connection set by the IT admin's policy, see public/managed_schema.json */
-export async function getManagedConnection(): Promise<Partial<Connection>> {
+/** What the IT admin's policy sets, see public/managed_schema.json */
+async function getPolicy(): Promise<Record<string, unknown>> {
   try {
-    const policy = await chrome.storage.managed.get(["serverUrl", "application"]);
-    return {
-      serverUrl: typeof policy.serverUrl === "string" ? policy.serverUrl.trim() : undefined,
-      application: typeof policy.application === "string" ? policy.application.trim() : undefined,
-    };
+    return await chrome.storage.managed.get(["serverUrl", "application", "protectSignInPages"]);
   } catch {
     return {};
   }
 }
 
-let preset: Promise<Partial<Connection>> | undefined;
+let preset: Promise<Record<string, unknown>> | undefined;
 
 /**
- * The connection written into config.json of the unzipped package by whoever hands it out, so that it works as soon as
- * it is loaded. It's empty in the packages we publish.
+ * What is written into config.json of the unzipped package by whoever hands it out, so that it works as soon as it is
+ * loaded. It's empty in the packages we publish.
  */
-export function getPresetConnection(): Promise<Partial<Connection>> {
+function getPreset(): Promise<Record<string, unknown>> {
   preset ??= fetch(chrome.runtime.getURL("config.json"))
     .then((response) => (response.ok ? response.json() : null))
-    .then((config: {serverUrl?: unknown; application?: unknown} | null) => ({
-      serverUrl: typeof config?.serverUrl === "string" ? config.serverUrl.trim() : undefined,
-      application: typeof config?.application === "string" ? config.application.trim() : undefined,
-    }))
+    .then((config: unknown) => (config && typeof config === "object" ? (config as Record<string, unknown>) : {}))
     .catch(() => ({}));
   return preset;
+}
+
+function toConnection(settings: Record<string, unknown>): Partial<Connection> {
+  return {
+    serverUrl: typeof settings.serverUrl === "string" ? settings.serverUrl.trim() : undefined,
+    application: typeof settings.application === "string" ? settings.application.trim() : undefined,
+  };
+}
+
+/** Whether the sign-in pages of the systems are protected, see background/guard.ts. On unless the policy or config.json turns it off */
+export async function isGuardOn(): Promise<boolean> {
+  const [policy, presetSettings] = await Promise.all([getPolicy(), getPreset()]);
+  for (const settings of [policy, presetSettings]) {
+    if (typeof settings.protectSignInPages === "boolean") {
+      return settings.protectSignInPages;
+    }
+  }
+  return true;
 }
 
 /**
@@ -73,7 +84,9 @@ export function getPresetConnection(): Promise<Partial<Connection>> {
  * once one of the two sets it, nor the application when it's set along with it.
  */
 export async function getConnection(): Promise<{connection: Connection; managed: boolean; managedApplication: boolean}> {
-  const [{connection}, policy, presetConnection] = await Promise.all([getLocal(), getManagedConnection(), getPresetConnection()]);
+  const [{connection}, policySettings, presetSettings] = await Promise.all([getLocal(), getPolicy(), getPreset()]);
+  const policy = toConnection(policySettings);
+  const presetConnection = toConnection(presetSettings);
   const fixed = policy.serverUrl ? policy : presetConnection;
   const managed = !!fixed.serverUrl;
   const managedApplication = managed && !!fixed.application;

@@ -7,7 +7,7 @@
   "version": "0.0.1",
   "minimum_chrome_version": "116",
   "homepage_url": "https://github.com/casdoor/casdoor-chrome-extension",
-  "permissions": ["storage", "identity", "offscreen"],
+  "permissions": ["storage", "identity", "offscreen", "privacy"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "background.js",

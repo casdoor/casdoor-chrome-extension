@@ -33,7 +33,8 @@ export async function launch(extension, options = {}) {
     // the headless shell has no extensions, the new headless mode of Chromium has
     channel: "chromium",
     headless: options.headless ?? true,
-    viewport: options.viewport ?? {width: 1280, height: 800},
+    // null for the size of the window, like a browser without emulation
+    viewport: options.viewport === undefined ? {width: 1280, height: 800} : options.viewport,
     locale: options.locale ?? "en-US",
     recordVideo: options.recordVideo,
     args: [
@@ -255,6 +256,48 @@ async function main() {
       assert(/Filled Acme HR/.test(text), text);
       assert((await page.inputValue("#hr-user")) === "E1024", "the username was not filled");
       await page.close();
+    });
+
+    await step("protects a sign-in page: no offer to save passwords and no developer tools shortcuts there", async () => {
+      const saving = () => worker.evaluate(() => chrome.privacy.services.passwordSavingEnabled.get({}));
+      const blocked = (page) => page.evaluate(() => {
+        const key = new KeyboardEvent("keydown", {key: "F12", code: "F12", bubbles: true, cancelable: true});
+        const menu = new MouseEvent("contextmenu", {bubbles: true, cancelable: true});
+        document.body.dispatchEvent(key);
+        document.body.dispatchEvent(menu);
+        return [key.defaultPrevented, menu.defaultPrevented];
+      });
+      const page = await context.newPage();
+      await page.goto("http://hr.acme.test/login");
+      await cardText(page);
+      const during = await saving();
+      assert(during.value === false && during.levelOfControl === "controlled_by_this_extension", JSON.stringify(during));
+      assert((await blocked(page)).join() === "true,true", "the shortcut or the context menu was not blocked");
+      await page.goto("http://oa.acme.test/home");
+      assert((await blocked(page)).join() === "false,false", "blocked on a page that is not a sign-in page");
+      await page.waitForTimeout(11000);
+      const after = await saving();
+      assert(after.value === true && after.levelOfControl === "controllable_by_this_extension", JSON.stringify(after));
+      await page.close();
+    });
+
+    await step("takes the password out when the developer tools are docked, and fills none while they are", async () => {
+      // a browser of its own with a window, where every tab opens with the developer tools, docked once the page is up
+      const other = await launch(extension, {headless: false, viewport: null, args: ["--auto-open-devtools-for-tabs", "--window-size=1280,900"]});
+      try {
+        await signIn(other.context, other.extensionId);
+        const page = await other.context.newPage();
+        await page.goto("http://hr.acme.test/login");
+        await page.locator("casdoor-autofill").getByText("Close the developer tools").waitFor({timeout: 15000});
+        assert((await page.inputValue("#hr-pass")) === "", "the password is still there");
+        await page.reload();
+        await page.locator("casdoor-autofill").getByText("Close the developer tools").waitFor({timeout: 15000});
+        await page.waitForTimeout(2000);
+        assert((await page.inputValue("#hr-pass")) === "", "the password was filled with the developer tools open");
+      } finally {
+        await other.context.close();
+        await rm(other.userData, {recursive: true, force: true});
+      }
     });
 
     await step("refreshes an expired access token with the refresh token", async () => {

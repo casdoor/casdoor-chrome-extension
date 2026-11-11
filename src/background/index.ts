@@ -7,7 +7,8 @@ import type {PagePlan, PendingAccount, Site, Status} from "../shared/types";
 import {recognizeCaptcha} from "./captcha";
 import {getRedirectUrl, getSession, OFFICIAL_EXTENSION_ID, signIn, signOut} from "./casdoor";
 import {clearSites, getAccount, getSiteOfPage, getSites, saveAccount} from "./sites";
-import {getConnection, getLocal, restrictStorage, sessionStore, setLocal} from "./storage";
+import {guardTab} from "./guard";
+import {getConnection, getLocal, isGuardOn, restrictStorage, sessionStore, setLocal} from "./storage";
 
 /** A sign-in page that comes back within this time after an automatic sign-in is filled but not submitted again */
 const RESUBMIT_GAP = 30 * 1000;
@@ -52,6 +53,20 @@ type PageHandlers = {[T in RequestType as T extends `page/${string}` ? T : never
 type PopupHandlers = {[T in RequestType as T extends `popup/${string}` ? T : never]: (payload: Requests[T]["request"]) => Promise<Requests[T]["response"]>};
 
 const pageHandlers: PageHandlers = {
+  /** Whether the frame is a sign-in page of one of the user's systems that is protected, whether autofill is on or not */
+  async "page/guard"(_, sender) {
+    if (!(await isGuardOn()) || !(await getSession()) || !(await getSiteOfPage(sender.url).catch(() => null))) {
+      return false;
+    }
+    await guardTab(sender.tabId);
+    return true;
+  },
+
+  /** The zoom of the tab, so that a content script can tell the browser's own panels from a zoomed page */
+  async "page/zoom"(_, sender) {
+    return chrome.tabs.getZoom(sender.tabId).catch(() => 1);
+  },
+
   async "page/plan"({manual}, sender) {
     if ((!manual && !(await isAutofillOn())) || !(await getSession())) {
       return null;

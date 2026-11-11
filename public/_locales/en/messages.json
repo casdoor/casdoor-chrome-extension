@@ -187,5 +187,11 @@
   },
   "saveFailedTitle": {
     "message": "Couldn't save the account"
+  },
+  "devtoolsTitle": {
+    "message": "Close the developer tools to sign in"
+  },
+  "devtoolsBody": {
+    "message": "To keep your account safe, no password is filled on this sign-in page while the developer tools are open. It is filled as soon as they are closed. If they aren't open, close the browser's side panel."
   }
 }

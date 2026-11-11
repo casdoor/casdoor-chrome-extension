@@ -19,6 +19,7 @@ Casdoor 浏览器扩展用来登录那些没有单点登录的系统，比如老
 - 管理员允许时，用户手动登录后提示把账号保存到 Casdoor，下次自动填写。
 - 自动登录后 30 秒内又回到登录页的，只填写、不再提交，并提示用户。
 - 弹窗里列出用户的系统，点一下就打开；关掉自动代填时，可以在当前页面手动填写一次。
+- 保护这些系统的登录页：浏览器不再提示保存这些密码，并尽量不让开发者工具看到密码。
 
 ## 安装
 
@@ -61,6 +62,17 @@ Casdoor 浏览器扩展用来登录那些没有单点登录的系统，比如老
 
 管理员允许用户保存账号的系统，先手动登录一次。登录成功后扩展会问“把 XX 的账号保存到 Casdoor？”，点“保存”，以后就自动登录；点“暂不”就不保存。询问期间扩展最多保留这个密码两分钟，只有点了“保存”才会发给 Casdoor。
 
+### 登录页保护
+
+在你的系统的登录页上，扩展会保护密码：
+
+- 浏览器不会提示保存密码，不管是扩展填的还是你自己输入的。Chrome 只有一个对所有网站生效的设置，所以扩展在标签页打开这类登录页时关掉它，离开登录页 10 秒后还原成你原来的设置；这几秒里其他网站也不会提示保存。
+- 在这些页面上按 F12、Ctrl+Shift+I / J / C（macOS 上是 Cmd+Option+I / J / C）、Ctrl+U 都没有反应，右键菜单（含“检查”）也不会弹出。
+- 开发者工具停靠在页面旁边时不填写密码；已经填好的密码在开发者工具打开时会被清掉，并弹出卡片请你关闭，关闭后自动重新填写。
+- 自动提交的表单，密码在提交前的一刻才填进去，提交后如果表单还在页面上，会再清掉。
+
+从浏览器菜单仍然能打开开发者工具，开发者工具弹出成独立窗口时页面也无法察觉，所以这只是提高门槛，不能完全杜绝。要彻底禁用开发者工具，请用 Chrome 策略 `DeveloperToolsAvailability` 或 `DeveloperToolsAvailabilityBlocklist`。IT 可以在策略或 `config.json` 里设 `"protectSignInPages": false` 关掉这项保护，见 [给整个单位部署](#给整个单位部署)。
+
 ### 开关自动代填
 
 弹窗里的“自动代填”开关可以在这个浏览器上关掉自动填写，比如要用别的账号登录某个系统时。当前标签页是你某个系统的登录页时，弹窗会显示这个系统和“立即填写”按钮，点一下填写一次，自动代填关着也能用。
@@ -102,18 +114,19 @@ Windows Registry Editor Version 5.00
 "application"="app-example"
 ```
 
-`serverUrl` 和 `application` 这两项也可以通过 Google 管理控制台、macOS 配置描述文件或 Linux 策略文件下发，格式见 [public/managed_schema.json](public/managed_schema.json)。
+`serverUrl`、`application` 和 `protectSignInPages` 也可以通过 Google 管理控制台、macOS 配置描述文件或 Linux 策略文件下发，格式见 [public/managed_schema.json](public/managed_schema.json)。
 
 不方便用 Chrome 策略的，可以预先配置好安装包再分发：解压发布里的 `casdoor-extension.zip`，填好根目录下的 `config.json`，把整个文件夹发给用户。用户用开发者模式加载后，地址和应用已经填好、不能修改，直接登录：
 
 ```json
 {
   "serverUrl": "https://door.example.com",
-  "application": "app-example"
+  "application": "app-example",
+  "protectSignInPages": true
 }
 ```
 
-这个包的扩展 ID 和应用商店版相同，Casdoor 直接接受它的回调地址。同时设了 Chrome 策略的，以策略为准。已经加载的文件夹里改了 `config.json` 后，要在 `chrome://extensions` 里点这个扩展的刷新按钮。
+`protectSignInPages` 不设时默认开启，见 [登录页保护](#登录页保护)。这个包的扩展 ID 和应用商店版相同，Casdoor 直接接受它的回调地址。同时设了 Chrome 策略的，以策略为准。已经加载的文件夹里改了 `config.json` 后，要在 `chrome://extensions` 里点这个扩展的刷新按钮。
 
 ### 开源版
 
@@ -128,6 +141,7 @@ Windows Registry Editor Version 5.00
 | 登录页上什么都没填 | 确认已经登录扩展、“自动代填”开着、这个系统出现在“我的系统”里。如果都没问题，可能是页面地址和这个系统的登录页地址对不上，请联系管理员。弹窗里的“立即填写”可以对当前页面试一次。 |
 | 卡片提示管理员配置的输入框在页面上没找到 | 页面改版了，这次扩展已经自动识别了输入框。请管理员更新 CSS 选择器。 |
 | 扩展又要求重新登录 | 登录已过期且没能续期。应用的“OAuth授权类型”要包含 `refresh_token`。 |
+| 卡片提示关闭开发者工具，但并没有打开 | 浏览器的侧边栏也会占用页面的宽度，关掉侧边栏后会自动填写。 |
 | 弹窗显示“基础代填” | 这个 Casdoor 没有企业版 license，见 [开源版](#开源版)。 |
 
 ## 隐私和安全
@@ -136,6 +150,7 @@ Windows Registry Editor Version 5.00
 - 只有页面自己的地址是这个系统的登录页时，才会拿到账号。Casdoor 在下发账号前会再核对一次地址，并记录每次下发。
 - 扩展不保存密码。用户手动输入的账号，在扩展询问是否保存期间最多保留两分钟，只有用户同意才会发给 Casdoor。
 - 验证码图片在用户电脑上识别，不会发到任何地方。在其他页面上，扩展不读取、也不发送任何内容。
+- `privacy` 权限只用来在标签页打开这些系统的登录页时关掉浏览器的“提示保存密码”，并在离开后还原用户原来的设置。
 
 隐私政策见 [casdoor.com/privacy](https://www.casdoor.com/privacy#browser-extension)。
 

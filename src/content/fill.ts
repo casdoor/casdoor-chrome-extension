@@ -5,6 +5,7 @@ import {request} from "../shared/messages";
 import type {Account, PagePlan, Site} from "../shared/types";
 import {CaptchaError, findCaptchaInput, newCaptcha, readRefusal, solveCaptcha} from "./captcha";
 import {findPassword, findUsername, isShown, isUsable, query, setValue, sleep, submit, waitFor} from "./dom";
+import {clearLater, isGuarded, rememberFilled, whenDevtoolsClosed} from "./guard";
 import {showCard, type Card} from "./overlay";
 
 const MAX_CAPTCHA_TRIES = 3;
@@ -71,6 +72,9 @@ export async function fill(plan: PagePlan, options: FillOptions = {}): Promise<v
     return;
   }
 
+  // no password goes into a page with the developer tools open, it is filled once they are closed
+  await whenDevtoolsClosed();
+
   let account: Account;
   try {
     account = await request("page/account", {
@@ -87,7 +91,15 @@ export async function fill(plan: PagePlan, options: FillOptions = {}): Promise<v
   if (usernameInput) {
     setValue(usernameInput, account.username);
   }
-  setValue(password, account.password);
+  const fillPassword = () => {
+    setValue(password, account.password);
+    rememberFilled(password, account.password);
+  };
+  // on a protected page a form that is signed in automatically gets its password only right before it is submitted
+  const deferPassword = isGuarded() && site.autoSubmit;
+  if (!deferPassword) {
+    fillPassword();
+  }
 
   let captchaInput: HTMLInputElement | null = null;
   let picture = "";
@@ -119,6 +131,10 @@ export async function fill(plan: PagePlan, options: FillOptions = {}): Promise<v
       return;
     }
     if (refusal !== "captcha" || !picture || plan.submitCount >= MAX_CAPTCHA_TRIES) {
+      // left for the user to sign in
+      if (deferPassword) {
+        fillPassword();
+      }
       showCard(
         refusal === "captcha"
           ? {tone: "warning", title: t("captchaGaveUpTitle"), body: t("captchaGaveUpBody", plan.submitCount), duration: 0}
@@ -133,6 +149,9 @@ export async function fill(plan: PagePlan, options: FillOptions = {}): Promise<v
     // a wrong captcha is tried again with the new one of this page
   }
   if (!site.autoSubmit || captchaProblem) {
+    if (deferPassword) {
+      fillPassword();
+    }
     showCard({tone: captchaProblem ? "warning" : "success", title: t("filledTitle", site.displayName), body: t("filledBody", account.username), notes, accounts, duration: notes.length > 0 ? 0 : 6000});
     captchaInput?.focus();
     return;
@@ -140,9 +159,18 @@ export async function fill(plan: PagePlan, options: FillOptions = {}): Promise<v
 
   showCard({tone: "success", title: t("signingInTitle", site.displayName), body: t("filledBody", account.username), notes, accounts, duration: 4000});
   await sleep(500);
+  if (deferPassword) {
+    await whenDevtoolsClosed();
+    fillPassword();
+    // so that a single-page app has taken the value into its state before the click
+    await sleep(100);
+  }
   await request("page/submitted", {application: site.application}).catch(() => null);
   const textBefore = document.body.innerText;
   submit(site, password);
+  if (deferPassword) {
+    clearLater(password, account.password);
+  }
   if (captchaInput && picture) {
     await retryCaptcha(site, account, captchaInput, picture, textBefore);
   }
@@ -175,7 +203,9 @@ async function retryCaptcha(site: Site, account: Account, input: HTMLInputElemen
       return;
     }
     if (!password.value) {
+      await whenDevtoolsClosed();
       setValue(password, account.password);
+      rememberFilled(password, account.password);
     }
     try {
       await newCaptcha(site, currentInput, picture);
@@ -188,5 +218,8 @@ async function retryCaptcha(site: Site, account: Account, input: HTMLInputElemen
     textBefore = document.body.innerText;
     await sleep(300);
     submit(site, password);
+    if (isGuarded()) {
+      clearLater(password, account.password);
+    }
   }
 }

@@ -6,6 +6,8 @@ import type {Account, CaptchaCharset, Connection, PagePlan, PendingAccount, Stat
 export interface Requests {
   // from content scripts, about their own frame
   "page/plan": {request: {manual: boolean}; response: PagePlan | null};
+  "page/guard": {request: Record<string, never>; response: boolean};
+  "page/zoom": {request: Record<string, never>; response: number};
   "page/account": {request: {application: string; username: string; captcha: boolean}; response: Account};
   "page/submitted": {request: {application: string}; response: null};
   "page/captcha": {request: {application: string; image: string; charset: CaptchaCharset}; response: string};

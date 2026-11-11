@@ -5,6 +5,7 @@ import {request, type FillNow} from "../shared/messages";
 import type {PagePlan} from "../shared/types";
 import {offerSave, watchSignIn} from "./capture";
 import {fill} from "./fill";
+import {startGuard} from "./guard";
 
 declare global {
   interface Window {
@@ -24,6 +25,9 @@ async function check(): Promise<void> {
   }
   checkedUrl = location.href;
   void offerSave();
+  if (await request("page/guard", {}).catch(() => false)) {
+    await startGuard();
+  }
   const plan = await getPlan();
   if (!plan) {
     return;

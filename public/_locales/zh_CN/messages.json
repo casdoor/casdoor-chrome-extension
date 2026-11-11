@@ -187,5 +187,11 @@
   },
   "saveFailedTitle": {
     "message": "没能保存账号"
+  },
+  "devtoolsTitle": {
+    "message": "请关闭开发者工具后登录"
+  },
+  "devtoolsBody": {
+    "message": "为了保护你的账号，开发者工具开着时这个登录页不会填写密码，关闭后会自动填写。如果没有打开开发者工具，请关闭浏览器的侧边栏。"
   }
 }

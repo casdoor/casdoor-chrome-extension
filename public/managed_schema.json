@@ -10,6 +10,11 @@
       "title": "Casdoor application",
       "description": "The application to sign in to the extension with, as name or owner/name. Users can't change it when it is set.",
       "type": "string"
+    },
+    "protectSignInPages": {
+      "title": "Protect the sign-in pages",
+      "description": "On the sign-in pages of the systems: the browser doesn't offer to save passwords, the developer tools' shortcuts and the context menu are blocked, and no password is filled while the developer tools are open. On when not set.",
+      "type": "boolean"
     }
   }
 }
