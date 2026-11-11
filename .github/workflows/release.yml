@@ -56,12 +56,23 @@ jobs:
             echo "No new release, nothing to package"
             exit 0
           fi
-          # the version only lives in the tag, it goes into the manifest of the build and is not committed
-          EXTENSION_VERSION="${tag#v}" yarn build
+          # the version only lives in the tag, it goes into the manifest of the build and is not committed.
+          # The package of the release has the store's key, so loaded unpacked it gets the ID and redirect URL of the
+          # store's; the one for the store has no key
+          EXTENSION_VERSION="${tag#v}" yarn build --key
           (cd dist && zip -qr ../casdoor-extension.zip .)
-          # a package without the captcha model or ONNX Runtime can't read captchas
-          unzip -l casdoor-extension.zip | grep -q "models/ddddocr/common_old.onnx"
-          unzip -l casdoor-extension.zip | grep -q "ort/ort-wasm-simd-threaded.wasm"
+          EXTENSION_VERSION="${tag#v}" yarn build
+          (cd dist && zip -qr ../casdoor-extension-store.zip .)
+          unzip -p casdoor-extension.zip manifest.json | grep -q '"key"'
+          if unzip -p casdoor-extension-store.zip manifest.json | grep -q '"key"'; then
+            echo "::error::The package for the Chrome Web Store has a key in its manifest"
+            exit 1
+          fi
+          for zip in casdoor-extension.zip casdoor-extension-store.zip; do
+            # a package without the captcha model or ONNX Runtime can't read captchas
+            unzip -l "$zip" | grep -q "models/ddddocr/common_old.onnx"
+            unzip -l "$zip" | grep -q "ort/ort-wasm-simd-threaded.wasm"
+          done
           gh release upload "$tag" casdoor-extension.zip --clobber
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
         env:
@@ -73,7 +84,7 @@ jobs:
             echo "::warning::The Chrome Web Store secrets are not set, ${{ steps.package.outputs.tag }} is only attached to the GitHub release"
             exit 0
           fi
-          if ! output=$(npx --yes chrome-webstore-upload-cli@4.0.2 --source casdoor-extension.zip 2>&1); then
+          if ! output=$(npx --yes chrome-webstore-upload-cli@4.0.2 --source casdoor-extension-store.zip 2>&1); then
             echo "$output"
             # the store takes no new version while one is in review: run this job again once the review is done
             if echo "$output" | grep -q "in review"; then

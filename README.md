@@ -22,7 +22,7 @@ The Casdoor browser extension signs people into the systems that have no single 
 
 Install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/casdoor-browser-plugin/bnjbegmkpjbcpneclidlbloadenondlm). It works in Chrome, Edge and other Chromium browsers that take extensions from the Chrome Web Store.
 
-Where the store can't be reached, download `casdoor-extension.zip` from the [latest release](https://github.com/casdoor/casdoor-chrome-extension/releases/latest), unzip it, open `chrome://extensions`, turn on **Developer mode** and click **Load unpacked**.
+Where the store can't be reached, download `casdoor-extension.zip` from the [latest release](https://github.com/casdoor/casdoor-chrome-extension/releases/latest), unzip it, open `chrome://extensions`, turn on **Developer mode** and click **Load unpacked**. The package has the public key of the store's extension in its manifest, so it gets the same ID and redirect URL wherever it's unzipped. Remove it before installing the extension from the store, Chrome takes the two as the same extension.
 
 ## Set it up in Casdoor
 
@@ -30,7 +30,7 @@ Form autofill is part of the Casdoor Enterprise edition. Casdoor without it stil
 
 1. **The systems.** In the edit page of the application of each system, open the **Form autofill** tab, turn it on and enter the addresses of its sign-in pages. Set **Submit automatically**, **Let users save their accounts** and **Recognize image captchas** as the system needs, and CSS selectors only where the fields aren't found automatically.
 2. **The accounts.** Give each user their account of the system as a managed account on the user's page, or let users save the account they sign in with by hand. With the organization's encrypted fields, the passwords are kept encrypted.
-3. **Signing in to the extension.** Users enter the Casdoor URL and an application of their organization, as `name` for an application of the `admin` owner or as `owner/name`. Every application accepts the redirect URL of the extension from the Chrome Web Store, so there is nothing to configure. The application needs the `refresh_token` grant type to keep users signed in after their access token expires. A build loaded unpacked has its own redirect URL, which the extension shows under its sign-in form to add to the application.
+3. **Signing in to the extension.** Users enter the Casdoor URL and an application of their organization, as `name` for an application of the `admin` owner or as `owner/name`. Every application accepts the redirect URL of the extension from the Chrome Web Store, so there is nothing to configure. The application needs the `refresh_token` grant type to keep users signed in after their access token expires. A build of your own loaded unpacked has its own redirect URL, which the extension shows under its sign-in form to add to the application, unless it's built with `--key`.
 
 ### Sign-in page addresses
 
@@ -83,6 +83,7 @@ The extension is TypeScript, built with Vite: the popup is React with Tailwind C
 ```bash
 yarn install
 yarn build        # builds dist/, load it with Load unpacked
+yarn build --key  # the same with the store's public key, so it has the store's ID
 yarn watch        # rebuilds on every change
 yarn typecheck
 yarn test         # unit tests of the sign-in page matching

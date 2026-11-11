@@ -7,11 +7,15 @@ import {dirname, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 import {build} from "vite";
 import react from "@vitejs/plugin-react";
+import {STORE_KEY} from "./store-key.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const watch = process.argv.includes("--watch");
 // the end-to-end test (e2e/run.mjs) builds into its own folder with the shadow roots of the cards open
 const e2e = process.argv.includes("--e2e");
+// the package of a GitHub release has the key of the Chrome Web Store, so that loaded unpacked it has the same ID as the
+// store's; the package uploaded to the store has none
+const withKey = process.argv.includes("--key");
 const dist = resolve(root, e2e ? "dist-e2e" : "dist");
 
 const common = {
@@ -35,6 +39,9 @@ async function writeManifest() {
   // the version of a release comes from its tag, see .github/workflows/release.yml
   if (process.env.EXTENSION_VERSION) {
     manifest.version = process.env.EXTENSION_VERSION;
+  }
+  if (withKey) {
+    manifest.key = STORE_KEY;
   }
   await writeFile(resolve(dist, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
 }
